@@ -180,7 +180,7 @@ function SelectedWorkSection() {
       id="selected-work"
       eyebrow="01 — Selected Product Work"
       title="Products shaped from ambiguity to delivery"
-      intro="Neutral domain labels only. Each case describes the problem, my contribution and the workflow behind it."
+      intro="A few products I’ve helped shape — from messy requirements to working systems."
       tone="quiet"
     >
       <StateBlock
@@ -275,7 +275,7 @@ function IndependentSection() {
       id="independent-work"
       eyebrow="02 — Independent Product Work"
       title="Products I am building on my own terms"
-      intro="Self-initiated products where I own the problem framing, the data model and the delivery decisions."
+      intro="Experiments, prototypes and products I’m building beyond the day job."
     >
       <StateBlock
         loading={isLoading}
@@ -356,30 +356,10 @@ function IndependentSection() {
 }
 
 const PRINCIPLES = [
-  {
-    title: "Start with the workflow, not the screen",
-    body: "Before any interface exists I map roles, states, transitions and exceptions. If the workflow has gaps, the UI only hides them.",
-  },
-  {
-    title: "Make the data model the contract",
-    body: "Entities, ownership and lifecycle states get settled early. Engineering shouldn't have to infer the business rule from a mockup.",
-  },
-  {
-    title: "Decide in the open",
-    body: "Every meaningful product decision carries its trade-off and its reason, so teams can revisit it later without re-litigating it.",
-  },
-  {
-    title: "Sequence for risk, not for comfort",
-    body: "Delivery plans attack the uncertain part first — integrations, rules engines, approvals — so surprises arrive early and cheap.",
-  },
-  {
-    title: "Exceptions are the product",
-    body: "Happy paths are easy. Rejections, reversals, partial data and overrides are where enterprise products succeed or fail.",
-  },
-  {
-    title: "AI stays accountable",
-    body: "Deterministic logic where correctness matters, AI where interpretation helps, evidence and human override wherever a decision lands.",
-  },
+  { title: "Map the system", body: "Roles, states, rules and edge cases before screens." },
+  { title: "Make decisions visible", body: "Clear trade-offs, ownership and reasons — not vague handoffs." },
+  { title: "Ship around risk", body: "Test the uncertain parts early and learn before polishing." },
+  { title: "Design for reality", body: "Exceptions, overrides and imperfect data are part of the product." },
 ];
 
 function HowIWorkSection() {
@@ -388,7 +368,7 @@ function HowIWorkSection() {
       id="how-i-work"
       eyebrow="03 — Inside the Work"
       title="How I work"
-      intro="The operating principles behind every case above."
+      intro="Less process theatre. More clarity, decisions and shipped work."
       tone="quiet"
     >
       <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
@@ -503,7 +483,7 @@ function VisualSection() {
       id="visual-work"
       eyebrow="05 — Visual & Brand Work"
       title="Design foundation"
-      intro="A small selection from earlier brand and campaign work. It informs how I think about clarity and consistency — it is not the focus of my practice."
+      intro="A visual side of the work — identity, interfaces and experiments."
       tone="quiet"
     >
       <StateBlock
@@ -530,7 +510,7 @@ function AboutSection() {
     <Section
       id="about"
       eyebrow="06 — About"
-      title="Working at the boundary between business and engineering"
+      title="Product thinking, with a builder’s bias"
     >
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-5 text-base leading-relaxed text-foreground/90">
@@ -569,8 +549,8 @@ function ContactSection() {
     <Section
       id="contact"
       eyebrow="07 — Contact"
-      title="Let's talk about the product you need built"
-      intro="Open to Product Manager and Technical Product Manager roles, and to product discovery engagements."
+      title="Have something interesting to build?"
+      intro="Product roles, collaborations and ambitious ideas are welcome."
       tone="quiet"
     >
       <div className="flex flex-wrap items-center gap-3">
