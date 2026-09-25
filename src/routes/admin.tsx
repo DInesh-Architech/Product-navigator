@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/admin")({ component: AdminPage });
 
 function AdminPage() {
-  const [email, setEmail] = useState("");\n  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [session, setSession] = useState<any>(null);
   const [role, setRole] = useState(false);
   const [message, setMessage] = useState("");
