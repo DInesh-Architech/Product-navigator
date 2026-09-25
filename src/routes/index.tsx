@@ -105,11 +105,11 @@ function Portfolio() {
             className="pointer-events-none absolute -right-40 -top-40 h-[28rem] w-[28rem] rounded-full opacity-[0.18] blur-3xl accent-bar-mint"
           />
           <div className="relative mx-auto max-w-6xl">
-            <p className="eyebrow">Product Manager · Technical Product Manager</p>
-            <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.05] sm:text-5xl md:text-6xl lg:text-7xl">
-              {s?.hero_headline ?? "I turn ambiguous business needs into buildable products."}
+            <p className="eyebrow">PRODUCT · SYSTEMS · AI · DELIVERY</p>
+            <h1 className="mt-5 max-w-5xl text-5xl font-semibold leading-[0.96] sm:text-6xl md:text-7xl lg:text-[6.5rem]">
+              {s?.hero_headline ?? "I turn messy ideas into products people can actually use."}
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mt-7 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               {s?.hero_supporting ?? ""}
             </p>
 
@@ -173,7 +173,7 @@ function Portfolio() {
 
 function SelectedWorkSection() {
   const { data, isLoading, error } = useSelectedWork();
-  const items = data ?? [];
+  const items = (data ?? []).slice(0, 5);
 
   return (
     <Section
@@ -193,7 +193,7 @@ function SelectedWorkSection() {
           {items.map((item, i) => (
             <article
               key={item.id}
-              className="panel group relative flex flex-col p-6 transition-colors hover:border-border-strong focus-within:border-border-strong"
+              className="panel group relative min-h-[22rem] flex flex-col overflow-hidden p-6 sm:p-8 transition-colors hover:border-border-strong focus-within:border-border-strong"
             >
               <span
                 aria-hidden="true"
@@ -203,52 +203,24 @@ function SelectedWorkSection() {
                 <p className="eyebrow">{item.category}</p>
                 {item.featured ? <span className="tag-chip !text-[0.68rem]">Featured</span> : null}
               </div>
-              <h3 className="mt-3 text-xl font-semibold sm:text-2xl">{item.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              <h3 className="mt-4 max-w-2xl text-2xl font-semibold sm:text-3xl lg:text-4xl">{item.title}</h3>
+              <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
                 {item.short_description}
               </p>
 
-              <dl className="mt-5 space-y-3 text-sm">
-                <div>
-                  <dt className="eyebrow">Challenge</dt>
-                  <dd className="mt-1 leading-relaxed text-foreground/90">{item.challenge}</dd>
+              <div className="mt-auto pt-6">
+                <div className="flex items-end justify-between gap-4 border-t border-border pt-4">
+                  <div>
+                    <p className="eyebrow">My role</p>
+                    <p className="mt-1 line-clamp-2 max-w-xl text-sm text-foreground/90">{item.contribution}</p>
+                  </div>
+                  <span aria-hidden="true" className="text-2xl text-mint transition-transform group-hover:translate-x-1">↗</span>
                 </div>
-                <div>
-                  <dt className="eyebrow">My contribution</dt>
-                  <dd className="mt-1 leading-relaxed text-foreground/90">{item.contribution}</dd>
-                </div>
-                <div>
-                  <dt className="eyebrow">Outcome</dt>
-                  <dd className="mt-1 leading-relaxed text-foreground/90">{item.outcome}</dd>
-                </div>
-              </dl>
-
-              {item.workflow.length ? (
-                <div className="mt-5">
-                  <p className="eyebrow">Workflow</p>
-                  <ol className="mt-2 flex flex-wrap items-center gap-1.5">
-                    {item.workflow.map((step, si) => (
-                      <li key={step} className="flex items-center gap-1.5">
-                        <span className="flow-step">{step}</span>
-                        {si < item.workflow.length - 1 ? (
-                          <span aria-hidden="true" className="text-muted-foreground">
-                            →
-                          </span>
-                        ) : null}
+              </div>
                       </li>
                     ))}
                   </ol>
                 </div>
-              ) : null}
-
-              {item.tags.length ? (
-                <ul className="mt-5 flex flex-wrap gap-1.5">
-                  {item.tags.map((t) => (
-                    <li key={t} className="tag-chip !text-[0.72rem]">
-                      {t}
-                    </li>
-                  ))}
-                </ul>
               ) : null}
 
               <EvidenceReveal
