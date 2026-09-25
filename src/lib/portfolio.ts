@@ -116,16 +116,17 @@ export const useHealthcareStudy = () =>
   });
 
 export const useSelectedWork = () =>
-  useQuery({ queryKey: ["selected_work"], queryFn: () => many<SelectedWork>("selected_work") });
+  useQuery({ queryKey: ["selected_work"], queryFn: () => many<SelectedWork>("selected_work"), placeholderData: [] });
 
 export const useIndependentWork = () =>
   useQuery({
     queryKey: ["independent_work"],
     queryFn: () => many<IndependentWork>("independent_work"),
+    placeholderData: [],
   });
 
 export const useVisualWork = () =>
-  useQuery({ queryKey: ["visual_work"], queryFn: () => many<VisualWork>("visual_work") });
+  useQuery({ queryKey: ["visual_work"], queryFn: () => many<VisualWork>("visual_work"), placeholderData: [] });
 
 const signedCache = new Map<string, string>();
 
