@@ -53,7 +53,7 @@
 }
 
 :root {
-  --radius: 0.5rem;
+  --radius: 0.85rem;
 
   --background: oklch(0.198 0.038 165);
   --foreground: oklch(0.965 0.012 150);
@@ -270,4 +270,27 @@
 }
 @utility accent-bar-sky {
   background: var(--color-sky);
+}
+
+/* 2026 portfolio refresh — more editorial, spatial and tactile */
+body {
+  background-image:
+    radial-gradient(circle at 85% 5%, color-mix(in oklab, var(--color-cobalt) 13%, transparent), transparent 30rem),
+    radial-gradient(circle at 10% 35%, color-mix(in oklab, var(--color-mint) 8%, transparent), transparent 28rem);
+  background-attachment: fixed;
+}
+.panel {
+  background: color-mix(in oklab, var(--color-surface) 82%, transparent);
+  backdrop-filter: blur(18px);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, white 6%, transparent);
+  transition: transform .28s cubic-bezier(.2,.8,.2,1), border-color .28s ease, background .28s ease;
+}
+article.panel:hover {
+  transform: translateY(-4px);
+  background: color-mix(in oklab, var(--color-surface-2) 86%, transparent);
+}
+h1 { text-wrap: balance; }
+h2 { text-wrap: balance; }
+@media (min-width: 1024px) {
+  #selected-work article:nth-child(3n + 1) { grid-column: span 2; }
 }
