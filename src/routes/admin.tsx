@@ -126,8 +126,9 @@ function emptyRows(): Rows {
 }
 
 function AdminPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("odkspav@gmail.com");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
@@ -143,6 +144,7 @@ function AdminPage() {
   const selectedRows = rows[activeTab];
   const checkAdmin = useCallback(async (userId: string) => {
     setCheckingRole(true);
+    const { error: bootstrapError } = await supabase.rpc("claim_first_admin");
     const { data, error: roleError } = await supabase
       .from("user_roles")
       .select("role")
@@ -152,7 +154,22 @@ function AdminPage() {
       setError(true);
       setIsAdmin(false);
     } else {
-      setIsAdmin(Boolean(data?.some((role) => role.role === "admin")));
+      const allowed = Boolean(data?.some((role) => role.role === "admin"));
+      setIsAdmin(allowed);
+      if (allowed) {
+        setMessage("");
+        setError(false);
+      } else if (bootstrapError) {
+        setMessage(
+          "First-time admin setup is not installed yet. Run the one-time Supabase setup SQL.",
+        );
+        setError(true);
+      } else {
+        setMessage(
+          "This account is not authorized to manage the portfolio. Use the portfolio contact email.",
+        );
+        setError(true);
+      }
     }
     setCheckingRole(false);
   }, []);
@@ -227,17 +244,68 @@ function AdminPage() {
     setForm(next ? { ...next } : null);
   }, [activeTab, rows, selectedId]);
 
-  async function signIn(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function requestOtp(event?: React.FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setMessage("Enter the portfolio contact email.");
+      setError(true);
+      return;
+    }
     setBusy(true);
-    setMessage("Signing in…");
+    setMessage("Sending a one-time sign-in email…");
     setError(false);
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: authError } = await supabase.auth.signInWithOtp({
+      email: normalizedEmail,
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${window.location.origin}/admin`,
+      },
+    });
     if (authError) {
       setMessage(authError.message);
       setError(true);
-    } else setMessage("");
+    } else {
+      setEmail(normalizedEmail);
+      setOtp("");
+      setOtpSent(true);
+      setMessage("Check your inbox for the one-time code or sign-in link.");
+    }
     setBusy(false);
+  }
+
+  async function verifyOtp(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
+    const token = otp.trim();
+    if (!token) {
+      setMessage("Enter the code from your email, or open its sign-in link in this browser.");
+      setError(true);
+      return;
+    }
+    setBusy(true);
+    setMessage("Verifying your code…");
+    setError(false);
+    const { error: authError } = await supabase.auth.verifyOtp({
+      email: normalizedEmail,
+      token,
+      type: "email",
+    });
+    if (authError) {
+      setMessage(authError.message);
+      setError(true);
+    } else {
+      setOtp("");
+      setMessage("Code accepted. Checking admin access…");
+    }
+    setBusy(false);
+  }
+
+  function changeEmail() {
+    setOtpSent(false);
+    setOtp("");
+    setMessage("");
+    setError(false);
   }
 
   async function signOut() {
@@ -458,29 +526,57 @@ function AdminPage() {
           </Link>
           <section className="admin-login">
             <p className="section-kicker">Product Navigator / Private</p>
-            <h1>Admin sign in</h1>
-            <p>Manage portfolio stories, supporting work, images and contact details.</p>
-            <form className="admin-login-form" onSubmit={signIn}>
-              <Field
-                label="Email address"
-                value={email}
-                type="email"
-                onChange={setEmail}
-                autoComplete="username"
-              />
-              <Field
-                label="Password"
-                value={password}
-                type="password"
-                onChange={setPassword}
-                autoComplete="current-password"
-              />
-              <button className="admin-button" type="submit" disabled={busy}>
-                {busy ? "Signing in…" : "Sign in"}
-              </button>
+            <h1>{otpSent ? "Check your inbox" : "Admin sign in"}</h1>
+            <p>
+              {otpSent
+                ? "Enter the one-time code from the email, or open its sign-in link in this browser."
+                : "Use the portfolio contact email. We’ll send a one-time sign-in code; no password is needed."}
+            </p>
+            <form className="admin-login-form" onSubmit={otpSent ? verifyOtp : requestOtp}>
+              {otpSent ? (
+                <>
+                  <Field
+                    label="Verification code"
+                    value={otp}
+                    type="text"
+                    onChange={setOtp}
+                    autoComplete="one-time-code"
+                    inputMode="numeric"
+                    required
+                  />
+                  <button className="admin-button" type="submit" disabled={busy}>
+                    {busy ? "Verifying…" : "Verify and continue"}
+                  </button>
+                  <button
+                    className="admin-button-secondary"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void requestOtp()}
+                  >
+                    Resend sign-in email
+                  </button>
+                  <button className="admin-button-secondary" type="button" onClick={changeEmail}>
+                    Use a different email
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Field
+                    label="Email address"
+                    value={email}
+                    type="email"
+                    onChange={setEmail}
+                    autoComplete="email"
+                    required
+                  />
+                  <button className="admin-button" type="submit" disabled={busy}>
+                    {busy ? "Sending code…" : "Send one-time code"}
+                  </button>
+                </>
+              )}
             </form>
             <div className="admin-login-foot">
-              <span>Portfolio content remains behind admin role checks.</span>
+              <span>Only the portfolio contact email can claim admin access.</span>
               <Link to="/">Return to portfolio</Link>
             </div>
             <Notice message={message} isError={error} />
@@ -662,6 +758,8 @@ function Field({
   help,
   type = "text",
   autoComplete,
+  inputMode,
+  required,
 }: {
   label: string;
   value: string;
@@ -671,6 +769,8 @@ function Field({
   help?: string;
   type?: string;
   autoComplete?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  required?: boolean;
 }) {
   const id = `field-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   const placeholder = kind === "lines" ? "One item per line" : undefined;
@@ -693,6 +793,8 @@ function Field({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           autoComplete={autoComplete}
+          inputMode={inputMode}
+          required={required}
         />
       )}
       {help ? <span className="admin-field-help">{help}</span> : null}
