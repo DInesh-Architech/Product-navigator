@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useMediaUrl } from "@/lib/portfolio";
 
 type Props = {
@@ -8,55 +7,45 @@ type Props = {
 };
 
 /**
- * One representative image per case.
- * Desktop: revealed on hover/focus of the case card (controlled by `open` via CSS group).
- * Mobile/tablet: an explicit toggle expands the image inline below the case.
+ * Project evidence is a first-class part of the portfolio.
+ * Real uploaded media is shown immediately; missing media stays explicit
+ * rather than being replaced with fabricated product imagery.
  */
 export function EvidenceReveal({ path, evidenceType, title }: Props) {
-  const [expanded, setExpanded] = useState(false);
   const url = useMediaUrl(path);
 
   return (
-    <div className="mt-5">
-      <button
-        type="button"
-        onClick={() => setExpanded((v) => !v)}
-        aria-expanded={expanded}
-        className="btn-base btn-outline !px-3 !py-1.5 !text-xs"
-      >
-        {expanded ? "Hide visual" : "View visual"}
-        <span className="eyebrow !text-[0.6rem] !tracking-[0.12em]">{evidenceType}</span>
-      </button>
-
-      <div
-        className={`overflow-hidden transition-[max-height,opacity] duration-300 ${
-          expanded ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
-        }`}
-      >
-        <figure className="mt-4 overflow-hidden rounded-xl border border-border bg-surface-2">
-          {url ? (
-            <img
-              src={url}
-              alt={`${title} — ${evidenceType.toLowerCase()}`}
-              loading="lazy"
-              className="w-full object-cover"
+    <figure className="group/evidence mt-7 overflow-hidden rounded-[1.35rem] border border-border bg-surface-2">
+      <div className="relative aspect-[16/10] overflow-hidden">
+        {url ? (
+          <img
+            src={url}
+            alt={`${title} — ${evidenceType.toLowerCase()}`}
+            loading="lazy"
+            className="h-full w-full object-cover object-top transition duration-500 ease-out group-hover/evidence:scale-[1.015]"
+          />
+        ) : (
+          <div className="relative flex h-full items-end overflow-hidden p-5 sm:p-6">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 opacity-60 [background:radial-gradient(circle_at_20%_20%,var(--color-mint),transparent_24%),radial-gradient(circle_at_78%_35%,var(--color-cobalt),transparent_22%),linear-gradient(135deg,var(--color-surface-2),var(--color-background))]"
             />
-          ) : (
-            <div className="flex aspect-[16/9] items-center justify-center px-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Visual placeholder — an anonymised {evidenceType.toLowerCase()} for {title} will be
-                published here.
-              </p>
-            </div>
-          )}
-          <figcaption className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-6 top-6 h-[62%] rounded-xl border border-border bg-background/35 shadow-2xl backdrop-blur-sm"
+            />
+            <p className="relative max-w-sm text-sm leading-relaxed text-muted-foreground">
+              Evidence image not published yet. Add an anonymised project visual from the admin panel.
+            </p>
+          </div>
+        )}
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-gradient-to-t from-background/90 via-background/35 to-transparent px-5 pb-4 pt-12">
+          <figcaption className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-foreground/80">
             {evidenceType}
-            {evidenceType !== "Actual UI"
-              ? " — not a screenshot of a client product."
-              : " — anonymised before publication."}
           </figcaption>
-        </figure>
+          <span aria-hidden="true" className="text-lg text-mint">↗</span>
+        </div>
       </div>
-    </div>
+    </figure>
   );
 }
