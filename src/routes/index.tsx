@@ -5,6 +5,8 @@ import {
   type HealthcareStudy,
   type SelectedWork,
   type VisualWork,
+  getEvidenceFallbackPath,
+  mergeCaseStudy,
   useAbout,
   useHealthcareStudy,
   useIndependentWork,
@@ -189,13 +191,18 @@ function Portfolio() {
   const visibleVisuals = (visuals ?? []).filter((item) => item.visible);
   const imageWork = buildImageWork(visibleVisuals, secondaryWork);
 
-  const headline = settings?.hero_headline || "I make complex work buildable.";
+  const savedHeadline = settings?.hero_headline?.trim();
+  const headline =
+    savedHeadline && savedHeadline.split(/\s+/).length <= 7
+      ? savedHeadline
+      : "I make complex work buildable.";
   const headlineParts = splitLastWord(headline);
   const email = settings?.contact_email || "odkspav@gmail.com";
-  const journey = (about?.transition_copy || DEFAULT_JOURNEY)
+  const savedJourney = (about?.transition_copy || "")
     .split("→")
     .map((step) => step.trim())
     .filter(Boolean);
+  const journey = savedJourney.length > 1 ? savedJourney : DEFAULT_JOURNEY.split("→");
 
   return (
     <div className="site-shell" id="top">
@@ -214,8 +221,9 @@ function Portfolio() {
                 Product Manager &amp; Product Builder
               </p>
               <p>
-                {settings?.hero_supporting ||
-                  "I work across discovery, product decisions and delivery—making complex workflows clear enough to build."}
+                {settings?.hero_supporting && settings.hero_supporting.split(/\s+/).length <= 18
+                  ? settings.hero_supporting
+                  : "From discovery to delivery, I make complex work clear enough to build."}
               </p>
               <div className="hero-actions">
                 <a className="text-action" href="#work">
@@ -241,10 +249,6 @@ function Portfolio() {
             <p className="section-kicker">01 / Selected work</p>
             <div>
               <h2 className="section-title">Complex systems, made buildable.</h2>
-              <p className="section-intro">
-                A few projects where workflow, roles and delivery decisions mattered as much as the
-                interface.
-              </p>
             </div>
           </div>
           <div className="work-list">
@@ -260,9 +264,6 @@ function Portfolio() {
               <p className="section-kicker">02 / Things I’m building</p>
               <div>
                 <h2 className="section-title">Small bets, real questions.</h2>
-                <p className="section-intro">
-                  Independent product work, shown at the stage it is actually in.
-                </p>
               </div>
             </div>
             <div className="build-grid">
@@ -285,17 +286,17 @@ function Portfolio() {
               <ApproachStep
                 number="01"
                 title="Frame the system"
-                text="Map the actors, states, handoffs and exceptions before a feature becomes a ticket."
+                text="Map actors, states and handoffs before scoping."
               />
               <ApproachStep
                 number="02"
                 title="Make decisions explicit"
-                text="Clarify scope, dependencies, rules and trade-offs so design and engineering can move together."
+                text="Name dependencies, rules and trade-offs."
               />
               <ApproachStep
                 number="03"
                 title="Stay through delivery"
-                text="Turn the plan into buildable work, validate behavior and carry feedback into the next release."
+                text="Validate behavior and carry feedback forward."
               />
             </div>
           </div>
@@ -311,11 +312,6 @@ function Portfolio() {
           <div className="about-grid">
             <p className="about-intro">{about?.intro || DEFAULT_ABOUT}</p>
             <div>
-              <p className="about-copy">
-                Architecture taught me to see relationships and constraints. Design and business
-                leadership added decision ownership. Product delivery brought those habits into
-                software teams.
-              </p>
               <div className="journey-line" aria-label="Career journey">
                 {journey.map((step, index) => (
                   <span key={step}>
@@ -334,10 +330,6 @@ function Portfolio() {
               <p className="section-kicker">05 / Supporting visual work</p>
               <div>
                 <h2 className="section-title">More products, different constraints.</h2>
-                <p className="section-intro">
-                  A visual index of additional product and brand work. Screens are cropped to keep
-                  names and sample data private.
-                </p>
               </div>
             </div>
             {imageWork.length ? (
@@ -394,8 +386,7 @@ function Portfolio() {
               </a>
             </div>
             <p className="contact-note">
-              I’m interested in product roles where clear thinking, strong workflows and steady
-              delivery make a visible difference.
+              Product roles where clear thinking and steady delivery matter.
             </p>
           </div>
         </section>
@@ -447,7 +438,8 @@ function SiteNav() {
 }
 
 function ProjectRow({ item, index }: { item: SelectedWork; index: number }) {
-  const caption = item.case_study?.evidence_caption || item.evidence_type || "Project evidence";
+  const details = mergeCaseStudy(item.slug, item.case_study);
+  const caption = details.evidence_caption || item.evidence_type || "Project evidence";
   const role = item.contribution || "Product definition and delivery";
   return (
     <article
@@ -472,28 +464,40 @@ function ProjectRow({ item, index }: { item: SelectedWork; index: number }) {
           </span>
         </Link>
       </div>
-      <ProjectImage path={item.image_path} title={item.title} caption={caption} index={index} />
+      <ProjectImage
+        path={item.image_path}
+        fallbackPath={getEvidenceFallbackPath(item.slug)}
+        title={item.title}
+        caption={caption}
+        index={index}
+      />
     </article>
   );
 }
 
 function ProjectImage({
   path,
+  fallbackPath,
   title,
   caption,
   index,
 }: {
   path: string | null;
+  fallbackPath: string | null;
   title: string;
   caption: string;
   index: number;
 }) {
   const url = useMediaUrl(path);
-  const fitClass = path?.endsWith("enterprise-operations.webp") ? " work-visual--contain" : "";
+  const fallbackUrl = useMediaUrl(path ? fallbackPath : null);
+  const imageUrl = url || fallbackUrl;
+  const fitClass = (path || fallbackPath)?.endsWith("enterprise-operations.webp")
+    ? " work-visual--contain"
+    : "";
   return (
     <div className={"work-visual" + fitClass} aria-label={"Evidence for " + title}>
-      {url ? (
-        <img src={url} alt={title + ": " + caption} loading={index === 0 ? "eager" : "lazy"} />
+      {imageUrl ? (
+        <img src={imageUrl} alt={title + ": " + caption} loading={index === 0 ? "eager" : "lazy"} />
       ) : null}
       <span className="work-visual-index" aria-hidden="true">
         {String(index + 1).padStart(2, "0")}
@@ -539,16 +543,22 @@ function ApproachStep({ number, title, text }: { number: string; title: string; 
 }
 
 function SupportTile({ item }: { item: VisualWork | SelectedWork }) {
+  const fallbackPath = "slug" in item ? getEvidenceFallbackPath(item.slug) : null;
+  const path = item.image_path || fallbackPath;
   const url = useMediaUrl(item.image_path);
+  const fallbackUrl = useMediaUrl(item.image_path ? fallbackPath : path);
+  const imageUrl = url || fallbackUrl;
   const category = "category" in item ? item.category : "Product work";
-  const panorama = item.image_path?.endsWith("service-discovery.webp");
+  const panorama = path?.endsWith("service-discovery.webp");
   return (
     <article
       className={"support-item reveal" + (panorama ? " support-item--panorama" : "")}
       data-reveal
     >
       <div className="support-image">
-        {url ? <img src={url} alt={item.title + " — " + category} loading="lazy" /> : null}
+        {imageUrl ? (
+          <img src={imageUrl} alt={item.title + " — " + category} loading="lazy" />
+        ) : null}
       </div>
       <div className="support-caption">
         <strong>{item.title}</strong>
@@ -609,7 +619,7 @@ function buildImageWork(
 ): Array<VisualWork | SelectedWork> {
   return [
     ...visuals.filter((item) => item.image_path),
-    ...projects.filter((item) => item.image_path),
+    ...projects.filter((item) => item.image_path || getEvidenceFallbackPath(item.slug)),
   ].slice(0, 6);
 }
 

@@ -133,6 +133,7 @@ function AdminPage() {
   const [checkingRole, setCheckingRole] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>("settings");
   const [rows, setRows] = useState<Rows>(emptyRows);
+  const [hasCaseStudyColumn, setHasCaseStudyColumn] = useState(false);
   const [selectedId, setSelectedId] = useState("");
   const [form, setForm] = useState<Row | null>(null);
   const [message, setMessage] = useState("");
@@ -195,8 +196,13 @@ function AdminPage() {
             return [key, values] as const;
           }),
         );
+        const { error: caseStudySchemaError } = await supabase
+          .from("selected_work")
+          .select("case_study")
+          .limit(1);
         if (active) {
           setRows(Object.fromEntries(entries) as Rows);
+          setHasCaseStudyColumn(!caseStudySchemaError);
           setMessage("");
           setError(false);
         }
@@ -354,21 +360,25 @@ function AdminPage() {
             .filter(Boolean);
     }
     if (activeTab === "work") {
-      const details = (
-        saved["case_study"] && typeof saved["case_study"] === "object" ? saved["case_study"] : {}
-      ) as Record<string, unknown>;
-      const nextDetails = { ...details };
-      for (const key of ["decisions", "product_workflow", "evidence_items", "shipped"]) {
-        const value = nextDetails[key];
-        if (value !== undefined)
-          nextDetails[key] = Array.isArray(value)
-            ? value
-            : String(value ?? "")
-                .split("\n")
-                .map((part) => part.trim())
-                .filter(Boolean);
+      if (!hasCaseStudyColumn) {
+        delete saved["case_study"];
+      } else {
+        const details = (
+          saved["case_study"] && typeof saved["case_study"] === "object" ? saved["case_study"] : {}
+        ) as Record<string, unknown>;
+        const nextDetails = { ...details };
+        for (const key of ["decisions", "product_workflow", "evidence_items", "shipped"]) {
+          const value = nextDetails[key];
+          if (value !== undefined)
+            nextDetails[key] = Array.isArray(value)
+              ? value
+              : String(value ?? "")
+                  .split("\n")
+                  .map((part) => part.trim())
+                  .filter(Boolean);
+        }
+        saved["case_study"] = nextDetails;
       }
-      saved["case_study"] = nextDetails;
     }
     if ("display_order" in saved) saved["display_order"] = Number(saved["display_order"] ?? 0);
     if (
@@ -582,8 +592,14 @@ function AdminPage() {
                         onChange={(value) => updateField(field.key, value)}
                       />
                     ))}
-                    {activeTab === "work" ? (
+                    {activeTab === "work" && hasCaseStudyColumn ? (
                       <CaseStudyFields form={form} update={updateCaseField} />
+                    ) : null}
+                    {activeTab === "work" && !hasCaseStudyColumn ? (
+                      <div className="admin-notice admin-field--wide">
+                        Detailed case fields need the included Supabase migration before they can be
+                        edited. Other project fields remain editable.
+                      </div>
                     ) : null}
                     {supportsImageUpload(activeTab) ? (
                       <UploadField

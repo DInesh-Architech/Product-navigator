@@ -1,5 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { type SelectedWork, useSelectedWork, useMediaUrl } from "@/lib/portfolio";
+import {
+  type SelectedWork,
+  getEvidenceFallbackPath,
+  mergeCaseStudy,
+  useSelectedWork,
+  useMediaUrl,
+} from "@/lib/portfolio";
 
 export const Route = createFileRoute("/work/$slug")({
   head: () => ({
@@ -13,10 +19,10 @@ export const Route = createFileRoute("/work/$slug")({
 
 function CaseStudyPage() {
   const { slug } = Route.useParams();
-  const { data: work = [], isLoading, isError } = useSelectedWork();
+  const { data: work = [], isLoading, isFetching, isError } = useSelectedWork();
   const item = work.find((project) => project.slug === slug && project.visible);
 
-  if (isLoading) {
+  if (isLoading || (!isError && isFetching && work.length === 0)) {
     return <main className="case-page page-wrap case-loading">Loading the case study…</main>;
   }
 
@@ -40,8 +46,10 @@ function CaseStudyPage() {
 }
 
 function CaseStudy({ item }: { item: SelectedWork }) {
-  const details = item.case_study ?? {};
-  const mediaUrl = useMediaUrl(item.image_path);
+  const details = mergeCaseStudy(item.slug, item.case_study);
+  const mediaUrl = useMediaUrl(item.image_path || getEvidenceFallbackPath(item.slug));
+  const fallbackMediaUrl = useMediaUrl(item.image_path ? getEvidenceFallbackPath(item.slug) : null);
+  const evidenceUrl = mediaUrl || fallbackMediaUrl;
   const decisions = details.decisions ?? [];
   const productWorkflow = details.product_workflow?.length
     ? details.product_workflow
@@ -121,10 +129,10 @@ function CaseStudy({ item }: { item: SelectedWork }) {
           <CaseSection number="06" label="Evidence" title="A working artifact">
             {details.evidence_caption ? <p>{details.evidence_caption}</p> : null}
             {details.evidence_items?.length ? <List items={details.evidence_items} /> : null}
-            {mediaUrl ? (
+            {evidenceUrl ? (
               <figure className="case-evidence">
                 <img
-                  src={mediaUrl}
+                  src={evidenceUrl}
                   alt={
                     item.title +
                     (details.evidence_caption ? ": " + details.evidence_caption : " evidence")

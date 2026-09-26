@@ -47,6 +47,169 @@ export type CaseStudyDetails = {
   learning?: string;
 };
 
+const EVIDENCE_BY_SLUG: Record<string, string> = {
+  "enterprise-workforce-platform": "/evidence/enterprise-operations.webp",
+  "enterprise-operations-suite": "/evidence/enterprise-operations.webp",
+  "construction-billing-sov": "/evidence/construction-progress-billing.svg",
+  "construction-progress-billing": "/evidence/construction-progress-billing.svg",
+  "healthcare-platform-enhancement": "/evidence/provider-current-state.svg",
+  "provider-workflow-modernization": "/evidence/provider-current-state.svg",
+  "school-management-saas": "/evidence/school-operations.svg",
+  "school-operations-platform": "/evidence/school-operations.svg",
+  "service-marketplace-booking": "/evidence/service-discovery.webp",
+  "local-service-discovery": "/evidence/service-discovery.webp",
+};
+
+const CASE_STUDY_FALLBACKS: Record<string, CaseStudyDetails> = {
+  "enterprise-workforce-platform": {
+    stage: "Product definition and delivery",
+    context:
+      "A connected workforce platform spans HRMS, CRM, timesheets, payroll and talent operations. Its shared roles, approvals and data rules cross module boundaries.",
+    decisions: [
+      "Make roles, permissions and approvals explicit across modules.",
+      "Treat shared data and cross-module handoffs as product requirements.",
+      "Give design and engineering clear acceptance criteria before sequencing delivery.",
+    ],
+    product_workflow: [
+      "Role and workflow mapping",
+      "Requirements",
+      "Acceptance criteria",
+      "Handoffs",
+      "QA and release readiness",
+    ],
+    evidence_caption: "An anonymized module selector from the workforce platform.",
+    evidence_items: ["Module launcher screenshot, cropped to remove account and client details."],
+    shipped: [
+      "Requirements and user stories",
+      "Acceptance criteria",
+      "UI and engineering handoffs",
+      "QA and release-readiness coordination",
+    ],
+    learning:
+      "In a multi-module product, shared rules need an owner and a home. Making those dependencies visible early helps each team deliver a coherent part of the system.",
+  },
+  "construction-billing-sov": {
+    stage: "Workflow definition and delivery coordination",
+    context:
+      "Progress billing connects contract setup, schedule of values, monthly applications, change orders, lien waivers and archived records.",
+    decisions: [
+      "Establish contract defaults and cost-code standards before creating phase-based schedules of values.",
+      "Support bulk imports while keeping the resulting line items consistent with the contract structure.",
+      "Make review and archive behavior specific to the roles involved in billing and closeout.",
+    ],
+    product_workflow: [
+      "Contract defaults",
+      "Phase-based schedule of values",
+      "Monthly pay application",
+      "Change orders and lien waivers",
+      "Role-specific review and archive",
+    ],
+    evidence_caption:
+      "Reconstructed workflow map based on the supplied product material; labels and amounts are not client data.",
+    evidence_items: ["Workflow map covering contract setup through billing review and closeout."],
+    shipped: [
+      "Defined setup, billing and closeout workflows",
+      "Mapped validation and role-based review points",
+      "Coordinated delivery across the contract lifecycle",
+    ],
+    learning:
+      "Billing rules are easier to reason about when the contract, each line item and each later change stay connected throughout the workflow.",
+  },
+  "healthcare-platform-enhancement": {
+    stage: "Current-state mapping and delivery baseline",
+    context:
+      "Provider Web and Patient Mobile workflows needed a shared current-state reference for product, UX, QA and engineering discussions.",
+    decisions: [
+      "Document current behavior before proposing changes, so the baseline does not imply unvalidated future-state behavior.",
+      "Keep provider and patient journeys distinct while showing their handoffs.",
+      "Capture validation points and open questions for downstream QA and backlog work.",
+    ],
+    product_workflow: [
+      "Provider dashboard",
+      "Patients",
+      "Search, register and edit",
+      "Clinical record",
+      "Appointments, messages, tasks and audit",
+    ],
+    evidence_caption:
+      "An anonymized current-state provider and patient workflow map reconstructed from supplied source material.",
+    evidence_items: ["Source flow map covering provider web and patient mobile journeys."],
+    shipped: [
+      "Versioned current-state workflow baseline",
+      "Validation points for QA mapping",
+      "Open questions for development and backlog discussions",
+    ],
+    learning:
+      "A trustworthy current-state map separates observed behavior from assumptions. That gives design and engineering room to improve the flow without losing the baseline.",
+  },
+  "school-management-saas": {
+    stage: "Product structure and workflow definition",
+    context:
+      "School operations bring administrators, teachers, families and support teams into shared records with different permissions and handoffs.",
+    decisions: [
+      "Organize the product around role-specific tasks while keeping the underlying records connected.",
+      "Separate academic, family communication and service workflows so each role can find its next action.",
+      "Represent handoffs explicitly instead of treating every role as the same user.",
+    ],
+    product_workflow: [
+      "Administration",
+      "Teaching",
+      "Family updates",
+      "Fees and services",
+      "Support",
+    ],
+    evidence_caption:
+      "Reconstructed role and workflow model from the supplied school operations work.",
+    evidence_items: ["Product model showing shared school records with role-specific workflows."],
+    shipped: [
+      "Role-based product model",
+      "Workflow grouping for academic, family and operational tasks",
+    ],
+    learning:
+      "Role clarity matters most where several people act on the same record. Modeling those permissions and handoffs early keeps the product understandable as it grows.",
+  },
+  "service-marketplace-booking": {
+    stage: "Product flow and interface definition",
+    context:
+      "A service booking experience asks people to narrow a local choice by location, service and date before moving forward.",
+    decisions: [
+      "Keep location, service and date visible as the core booking inputs.",
+      "Present the choices in a clear sequence so people can orient themselves before continuing.",
+    ],
+    product_workflow: ["Choose location", "Choose service", "Choose date", "Continue booking"],
+    evidence_caption:
+      "A privacy-safe crop of the supplied service discovery and booking interface.",
+    evidence_items: ["Location, service and date selection controls."],
+    shipped: ["A booking-selection interface covering location, service and date inputs"],
+    learning:
+      "A local service flow benefits from making the next decision obvious while preserving enough context for people to change an earlier choice.",
+  },
+  "enterprise-operations-suite": {},
+  "construction-progress-billing": {},
+  "provider-workflow-modernization": {},
+  "school-operations-platform": {},
+  "local-service-discovery": {},
+};
+
+export function getEvidenceFallbackPath(slug: string): string | null {
+  return EVIDENCE_BY_SLUG[slug] ?? null;
+}
+
+export function getCaseStudyFallback(slug: string): CaseStudyDetails {
+  const alias: Record<string, string> = {
+    "enterprise-operations-suite": "enterprise-workforce-platform",
+    "construction-progress-billing": "construction-billing-sov",
+    "provider-workflow-modernization": "healthcare-platform-enhancement",
+    "school-operations-platform": "school-management-saas",
+    "local-service-discovery": "service-marketplace-booking",
+  };
+  return CASE_STUDY_FALLBACKS[alias[slug] ?? slug] ?? {};
+}
+
+export function mergeCaseStudy(slug: string, stored?: CaseStudyDetails | null): CaseStudyDetails {
+  return { ...getCaseStudyFallback(slug), ...(stored ?? {}) };
+}
+
 export type SelectedWork = {
   id: string;
   title: string;
