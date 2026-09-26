@@ -155,6 +155,7 @@ export type Database = {
       selected_work: {
         Row: {
           category: string
+          case_study: Json
           challenge: string
           contribution: string
           created_at: string
@@ -174,6 +175,7 @@ export type Database = {
         }
         Insert: {
           category?: string
+          case_study?: Json
           challenge?: string
           contribution?: string
           created_at?: string
@@ -193,6 +195,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          case_study?: Json
           challenge?: string
           contribution?: string
           created_at?: string

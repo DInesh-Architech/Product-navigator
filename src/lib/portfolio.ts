@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type PortfolioTable = keyof Database["public"]["Tables"];
 
 export type SiteSettings = {
   id: string;
@@ -33,6 +36,17 @@ export type Resume = {
   uploaded_at: string | null;
 };
 
+export type CaseStudyDetails = {
+  stage?: string;
+  context?: string;
+  decisions?: string[];
+  product_workflow?: string[];
+  evidence_caption?: string;
+  evidence_items?: string[];
+  shipped?: string[];
+  learning?: string;
+};
+
 export type SelectedWork = {
   id: string;
   title: string;
@@ -48,6 +62,7 @@ export type SelectedWork = {
   display_order: number;
   image_path: string | null;
   evidence_type: string;
+  case_study?: CaseStudyDetails | null;
   visible: boolean;
 };
 
@@ -86,13 +101,13 @@ export type VisualWork = {
   visible: boolean;
 };
 
-async function one<T>(table: string): Promise<T | null> {
+async function one<T>(table: PortfolioTable): Promise<T | null> {
   const { data, error } = await supabase.from(table).select("*").limit(1).maybeSingle();
   if (error) throw error;
   return (data as T) ?? null;
 }
 
-async function many<T>(table: string): Promise<T[]> {
+async function many<T>(table: PortfolioTable): Promise<T[]> {
   const { data, error } = await supabase
     .from(table)
     .select("*")
@@ -116,7 +131,11 @@ export const useHealthcareStudy = () =>
   });
 
 export const useSelectedWork = () =>
-  useQuery({ queryKey: ["selected_work"], queryFn: () => many<SelectedWork>("selected_work"), placeholderData: [] });
+  useQuery({
+    queryKey: ["selected_work"],
+    queryFn: () => many<SelectedWork>("selected_work"),
+    placeholderData: [],
+  });
 
 export const useIndependentWork = () =>
   useQuery({
@@ -126,16 +145,25 @@ export const useIndependentWork = () =>
   });
 
 export const useVisualWork = () =>
-  useQuery({ queryKey: ["visual_work"], queryFn: () => many<VisualWork>("visual_work"), placeholderData: [] });
+  useQuery({
+    queryKey: ["visual_work"],
+    queryFn: () => many<VisualWork>("visual_work"),
+    placeholderData: [],
+  });
 
 const signedCache = new Map<string, string>();
 
 export async function getMediaUrl(path: string): Promise<string | null> {
+  if (/^(https?:|data:|blob:)/i.test(path) || path.startsWith("/")) return path;
   if (signedCache.has(path)) return signedCache.get(path)!;
-  const { data, error } = await supabase.storage.from("media").createSignedUrl(path, 60 * 60 * 6);
-  if (error || !data?.signedUrl) return null;
-  signedCache.set(path, data.signedUrl);
-  return data.signedUrl;
+  try {
+    const { data, error } = await supabase.storage.from("media").createSignedUrl(path, 60 * 60 * 6);
+    if (error || !data?.signedUrl) return null;
+    signedCache.set(path, data.signedUrl);
+    return data.signedUrl;
+  } catch {
+    return null;
+  }
 }
 
 /** Resolves a stored media path into a temporary viewable URL. */

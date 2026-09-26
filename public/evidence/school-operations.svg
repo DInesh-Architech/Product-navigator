@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960" fill="none">
+  <rect width="1440" height="960" fill="#E6E5DB"/>
+  <text x="68" y="80" fill="#667067" font-family="IBM Plex Mono, monospace" font-size="17" letter-spacing="3">PRODUCT MODEL / SCHOOL OPERATIONS</text>
+  <text x="68" y="153" fill="#17231D" font-family="Bricolage Grotesque, sans-serif" font-size="49" font-weight="600" letter-spacing="-2">Shared records. Different responsibilities.</text>
+  <text x="68" y="197" fill="#69746B" font-family="IBM Plex Sans, sans-serif" font-size="21">A shared student and school record supports distinct role-based workflows.</text>
+  <g stroke="#8B9689" stroke-width="2">
+    <path d="M270 366L608 495M270 587L608 495M1170 366L832 495M1170 587L832 495"/>
+    <path d="M720 393V276M720 597V714"/>
+  </g>
+  <rect x="497" y="405" width="446" height="184" fill="#17231D"/>
+  <text x="538" y="451" fill="#D9EF78" font-family="IBM Plex Mono, monospace" font-size="15" letter-spacing="2">SHARED RECORDS</text>
+  <g fill="#FBFAF5" font-family="Bricolage Grotesque, sans-serif" font-size="28" font-weight="600">
+    <text x="538" y="505">Student · staff</text><text x="538" y="547">Class · term</text>
+  </g>
+  <g>
+    <rect x="76" y="285" width="370" height="168" fill="#FBFAF5" stroke="#A8AFA4"/>
+    <rect x="76" y="503" width="370" height="168" fill="#FBFAF5" stroke="#A8AFA4"/>
+    <rect x="994" y="285" width="370" height="168" fill="#FBFAF5" stroke="#A8AFA4"/>
+    <rect x="994" y="503" width="370" height="168" fill="#FBFAF5" stroke="#A8AFA4"/>
+    <rect x="580" y="220" width="280" height="88" fill="#D9EF78" stroke="#17231D"/>
+    <rect x="580" y="714" width="280" height="88" fill="#D9EF78" stroke="#17231D"/>
+  </g>
+  <g fill="#17231D" font-family="Bricolage Grotesque, sans-serif" font-size="25" font-weight="600">
+    <text x="111" y="335">Administration</text><text x="111" y="553">Teaching</text><text x="1029" y="335">Families</text><text x="1029" y="553">Accounts &amp; support</text>
+    <text x="616" y="275">Academics</text><text x="640" y="769">Operations</text>
+  </g>
+  <g fill="#69746B" font-family="IBM Plex Sans, sans-serif" font-size="17">
+    <text x="111" y="378">Enrolment · calendar · notices</text><text x="111" y="596">Attendance · diary · exams</text><text x="1029" y="378">Updates · requests · services</text><text x="1029" y="596">Fees · transport · records</text>
+  </g>
+  <path d="M137 725H1303" stroke="#A8AFA4" stroke-width="1"/>
+  <text x="68" y="908" fill="#69746B" font-family="IBM Plex Mono, monospace" font-size="13">RECONSTRUCTED PRODUCT MODEL / BASED ON PROJECT WORKFLOWS; SAMPLE DASHBOARD VALUES OMITTED</text>
+</svg>

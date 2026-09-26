@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960" fill="none">
+  <rect width="1440" height="960" fill="#E6E5DB"/>
+  <text x="68" y="80" fill="#667067" font-family="IBM Plex Mono, monospace" font-size="17" letter-spacing="3">WORKFLOW MAP / CONSTRUCTION BILLING</text>
+  <text x="68" y="153" fill="#17231D" font-family="Bricolage Grotesque, sans-serif" font-size="49" font-weight="600" letter-spacing="-2">One contract. A traceable payment.</text>
+  <text x="68" y="197" fill="#69746B" font-family="IBM Plex Sans, sans-serif" font-size="21">Every monthly amount connects back to scope, evidence and approval.</text>
+  <path d="M121 361H1318" stroke="#8B9689" stroke-width="2"/>
+  <circle cx="121" cy="361" r="7" fill="#D9EF78" stroke="#17231D" stroke-width="2"/>
+  <circle cx="420" cy="361" r="7" fill="#D9EF78" stroke="#17231D" stroke-width="2"/>
+  <circle cx="720" cy="361" r="7" fill="#D9EF78" stroke="#17231D" stroke-width="2"/>
+  <circle cx="1018" cy="361" r="7" fill="#D9EF78" stroke="#17231D" stroke-width="2"/>
+  <circle cx="1318" cy="361" r="7" fill="#D9EF78" stroke="#17231D" stroke-width="2"/>
+  <g font-family="IBM Plex Mono, monospace" font-size="15" fill="#69746B">
+    <text x="92" y="324">01</text><text x="391" y="324">02</text><text x="691" y="324">03</text><text x="989" y="324">04</text><text x="1289" y="324">05</text>
+  </g>
+  <g>
+    <rect x="68" y="402" width="250" height="218" fill="#FBFAF5" stroke="#A8AFA4"/>
+    <rect x="367" y="402" width="250" height="218" fill="#FBFAF5" stroke="#A8AFA4"/>
+    <rect x="666" y="402" width="250" height="218" fill="#FBFAF5" stroke="#A8AFA4"/>
+    <rect x="965" y="402" width="250" height="218" fill="#FBFAF5" stroke="#A8AFA4"/>
+    <rect x="1264" y="402" width="108" height="218" fill="#D9EF78" stroke="#17231D"/>
+  </g>
+  <g fill="#17231D" font-family="Bricolage Grotesque, sans-serif" font-size="24" font-weight="600">
+    <text x="91" y="451">Contract setup</text><text x="390" y="451">Schedule of values</text><text x="689" y="451">Change orders</text><text x="988" y="451">Monthly application</text><text x="1285" y="451">Review</text>
+  </g>
+  <g fill="#69746B" font-family="IBM Plex Sans, sans-serif" font-size="17">
+    <text x="91" y="491"><tspan x="91">Cost code structure</tspan><tspan x="91" dy="25">Contract rules</tspan><tspan x="91" dy="25">Approval roles</tspan></text>
+    <text x="390" y="491"><tspan x="390">Line items</tspan><tspan x="390" dy="25">Retainage treatment</tspan><tspan x="390" dy="25">Stored materials</tspan></text>
+    <text x="689" y="491"><tspan x="689">Scope change</tspan><tspan x="689" dy="25">Inherited defaults</tspan><tspan x="689" dy="25">History preserved</tspan></text>
+    <text x="988" y="491"><tspan x="988">Progress and amounts</tspan><tspan x="988" dy="25">Evidence attached</tspan><tspan x="988" dy="25">Waiver tracking</tspan></text>
+    <text x="1284" y="491"><tspan x="1284">Approve</tspan><tspan x="1284" dy="25">or return</tspan></text>
+  </g>
+  <rect x="68" y="707" width="1304" height="164" fill="#17231D"/>
+  <text x="98" y="754" fill="#D9EF78" font-family="IBM Plex Mono, monospace" font-size="15" letter-spacing="2">RULES THAT TRAVEL WITH EACH LINE</text>
+  <g fill="#FBFAF5" font-family="IBM Plex Sans, sans-serif" font-size="20">
+    <text x="98" y="807">Cost code</text><text x="386" y="807">Retainage</text><text x="672" y="807">Stored materials</text><text x="1000" y="807">Lien waiver</text>
+  </g>
+  <g fill="#AAB3A9" font-family="IBM Plex Mono, monospace" font-size="14">
+    <text x="98" y="840">classify</text><text x="386" y="840">calculate</text><text x="672" y="840">validate</text><text x="1000" y="840">track</text>
+  </g>
+  <text x="68" y="924" fill="#69746B" font-family="IBM Plex Mono, monospace" font-size="13">RECONSTRUCTED WORKFLOW MAP / PRODUCT RULES, NOT A PRODUCTION SCREEN</text>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960" fill="none">
+  <rect width="1440" height="960" fill="#E6E5DB"/>
+  <text x="68" y="80" fill="#667067" font-family="IBM Plex Mono, monospace" font-size="17" letter-spacing="3">SERVICE BLUEPRINT / COMMUNITY OPERATIONS</text>
+  <text x="68" y="153" fill="#17231D" font-family="Bricolage Grotesque, sans-serif" font-size="49" font-weight="600" letter-spacing="-2">Different operators. One visible state.</text>
+  <text x="68" y="197" fill="#69746B" font-family="IBM Plex Sans, sans-serif" font-size="21">Visitors, complaints, payments and safety requests need a clear owner.</text>
+  <g>
+    <rect x="68" y="280" width="1304" height="112" fill="#17231D"/>
+    <rect x="68" y="392" width="1304" height="106" fill="#FBFAF5" stroke="#A8AFA4"/>
+    <rect x="68" y="498" width="1304" height="106" fill="#ECEBE2" stroke="#A8AFA4"/>
+    <rect x="68" y="604" width="1304" height="106" fill="#FBFAF5" stroke="#A8AFA4"/>
+    <rect x="68" y="710" width="1304" height="106" fill="#ECEBE2" stroke="#A8AFA4"/>
+  </g>
+  <text x="105" y="327" fill="#D9EF78" font-family="IBM Plex Mono, monospace" font-size="15" letter-spacing="2">ACTOR / HANDOFF</text>
+  <text x="390" y="327" fill="#D9EF78" font-family="IBM Plex Mono, monospace" font-size="15" letter-spacing="2">REQUEST OR EVENT</text>
+  <text x="888" y="327" fill="#D9EF78" font-family="IBM Plex Mono, monospace" font-size="15" letter-spacing="2">NEXT ACTION</text>
+  <text x="1210" y="327" fill="#D9EF78" font-family="IBM Plex Mono, monospace" font-size="15" letter-spacing="2">STATE</text>
+  <g fill="#17231D" font-family="Bricolage Grotesque, sans-serif" font-size="23" font-weight="600">
+    <text x="105" y="454">Resident</text><text x="390" y="454">Visitor / delivery</text><text x="888" y="454">Verify at entry</text><text x="1210" y="454">Logged</text>
+    <text x="105" y="560">Resident</text><text x="390" y="560">Complaint</text><text x="888" y="560">Assign and escalate</text><text x="1210" y="560">Owned</text>
+    <text x="105" y="666">Facility team</text><text x="390" y="666">Maintenance task</text><text x="888" y="666">Resolve and update</text><text x="1210" y="666">Tracked</text>
+    <text x="105" y="772">Admin / accounts</text><text x="390" y="772">Payment / safety alert</text><text x="888" y="772">Review and notify</text><text x="1210" y="772">Recorded</text>
+  </g>
+  <text x="68" y="906" fill="#69746B" font-family="IBM Plex Mono, monospace" font-size="13">RECONSTRUCTED SERVICE BLUEPRINT / PRODUCT OPERATING MODEL, NOT A PRODUCTION SCREEN</text>
+</svg>
