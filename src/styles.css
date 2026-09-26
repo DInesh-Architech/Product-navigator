@@ -197,7 +197,7 @@ img {
 }
 .hero-heading em {
   color: #60713c;
-  font: 400 0.98em/.88 var(--serif);
+  font: 400 0.98em/0.88 var(--serif);
   letter-spacing: -0.045em;
 }
 .hero-side {
@@ -348,6 +348,10 @@ img {
   color: var(--muted);
   font-size: 15px;
   line-height: 1.6;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 .work-role {
   margin-top: 28px;
@@ -368,6 +372,10 @@ img {
   color: var(--ink-soft);
   font-size: 12px;
   line-height: 1.45;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 .work-open {
   display: inline-flex;
@@ -503,6 +511,10 @@ img {
   color: #b9c2b9;
   font-size: 13px;
   line-height: 1.55;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 .build-capabilities {
   margin-top: 16px;
@@ -748,7 +760,7 @@ img {
   letter-spacing: -0.085em;
 }
 .contact-title em {
-  font: 400 0.96em/.9 var(--serif);
+  font: 400 0.96em/0.9 var(--serif);
 }
 .contact-note {
   max-width: 28ch;

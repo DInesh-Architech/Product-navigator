@@ -120,9 +120,9 @@ const CASE_STUDY_FALLBACKS: Record<string, CaseStudyDetails> = {
     context:
       "Provider Web and Patient Mobile workflows needed a shared current-state reference for product, UX, QA and engineering discussions.",
     decisions: [
-      "Document current behavior before proposing changes, so the baseline does not imply unvalidated future-state behavior.",
-      "Keep provider and patient journeys distinct while showing their handoffs.",
-      "Capture validation points and open questions for downstream QA and backlog work.",
+      "Separate existing behavior, functional gaps, UX issues and future improvements before scoping changes.",
+      "Build developer and QA checklists around mapped provider and patient journeys.",
+      "Sequence enhancement work module by module to preserve the current clinical workflow baseline.",
     ],
     product_workflow: [
       "Provider dashboard",
@@ -135,9 +135,9 @@ const CASE_STUDY_FALLBACKS: Record<string, CaseStudyDetails> = {
       "An anonymized current-state provider and patient workflow map reconstructed from supplied source material.",
     evidence_items: ["Source flow map covering provider web and patient mobile journeys."],
     shipped: [
-      "Versioned current-state workflow baseline",
-      "Validation points for QA mapping",
-      "Open questions for development and backlog discussions",
+      "Documented current-state flows",
+      "Developer and QA validation checklists",
+      "Structured user stories and a module-by-module implementation sequence",
     ],
     learning:
       "A trustworthy current-state map separates observed behavior from assumptions. That gives design and engineering room to improve the flow without losing the baseline.",
@@ -171,12 +171,18 @@ const CASE_STUDY_FALLBACKS: Record<string, CaseStudyDetails> = {
   "service-marketplace-booking": {
     stage: "Product flow and interface definition",
     context:
-      "A service booking experience asks people to narrow a local choice by location, service and date before moving forward.",
+      "A multi-channel beauty booking experience supports salon services, at-home services and guest bookings.",
     decisions: [
       "Keep location, service and date visible as the core booking inputs.",
       "Present the choices in a clear sequence so people can orient themselves before continuing.",
     ],
-    product_workflow: ["Choose location", "Choose service", "Choose date", "Continue booking"],
+    product_workflow: [
+      "Choose location",
+      "Choose salon or at-home service",
+      "Choose service",
+      "Choose date",
+      "Continue booking as a guest or signed-in user",
+    ],
     evidence_caption:
       "A privacy-safe crop of the supplied service discovery and booking interface.",
     evidence_items: ["Location, service and date selection controls."],

@@ -348,8 +348,8 @@ function Portfolio() {
                 <div className="more-work-title">
                   <h3>Other product work</h3>
                   <span>
-                    {secondaryWork.length + (healthcare?.visible ? 1 : 0)} projects · all details
-                    preserved
+                    {String(secondaryWork.length + (healthcare?.visible ? 1 : 0)).padStart(2, "0")}{" "}
+                    / Archive
                   </span>
                 </div>
                 <div className="more-work-list">
@@ -489,7 +489,7 @@ function ProjectImage({
   index: number;
 }) {
   const url = useMediaUrl(path);
-  const fallbackUrl = useMediaUrl(path ? fallbackPath : null);
+  const fallbackUrl = useMediaUrl(fallbackPath);
   const imageUrl = url || fallbackUrl;
   const fitClass = (path || fallbackPath)?.endsWith("enterprise-operations.webp")
     ? " work-visual--contain"
