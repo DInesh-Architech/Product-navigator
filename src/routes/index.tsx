@@ -217,11 +217,6 @@ function SelectedWorkSection() {
                   <span aria-hidden="true" className="text-2xl text-mint transition-transform group-hover:translate-x-1">↗</span>
                 </div>
               </div>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              ) : null}
 
               <EvidenceReveal
                 path={item.image_path}
