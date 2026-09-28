@@ -181,8 +181,6 @@ function AdminPage() {
       setTotpSecret("");
       setTotpCode("");
 
-      const bootstrap = await claimAdmin();
-      if (!isCurrent()) return;
       const { data, error: roleError } = await supabase
         .from("user_roles")
         .select("role")
@@ -192,19 +190,34 @@ function AdminPage() {
       if (roleError) {
         throw roleError;
       }
-      const allowed = Boolean(data?.some((role) => role.role === "admin"));
-      setIsAdmin(allowed);
-      if (allowed) {
+      if (data?.some((role) => role.role === "admin")) {
+        setIsAdmin(true);
         setMessage("");
         setError(false);
-      } else {
-        setMessage(
-          bootstrap.granted
-            ? "This account is not authorized to manage the portfolio."
-            : bootstrap.reason || "First-time admin setup could not be completed.",
-        );
-        setError(true);
+        return;
       }
+
+      const bootstrap = await claimAdmin();
+      if (!isCurrent()) return;
+      if (!bootstrap.granted) {
+        setIsAdmin(false);
+        setMessage(bootstrap.reason || "First-time admin setup could not be completed.");
+        setError(true);
+        return;
+      }
+
+      const { data: refreshedRoles, error: refreshedRoleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", nextSession.user.id);
+      if (!isCurrent()) return;
+      if (refreshedRoleError) throw refreshedRoleError;
+      const allowed = Boolean(refreshedRoles?.some((role) => role.role === "admin"));
+      setIsAdmin(allowed);
+      setMessage(
+        allowed ? "" : "Admin access was not confirmed after setup. Sign out and try again.",
+      );
+      setError(!allowed);
     } catch (cause) {
       if (!isCurrent()) return;
       setIsAdmin(false);
@@ -773,8 +786,17 @@ function AdminPage() {
           <div className="locked-panel">
             <strong>Admin role required</strong>
             <p>
-              This account is signed in, but it does not have permission to edit portfolio content.
+              Signed in as {session?.user.email ?? "an unknown account"}. The admin check did not
+              complete successfully.
             </p>
+            <Notice message={message || "No admin role was returned for this account."} isError />
+            <button
+              className="admin-button-secondary"
+              onClick={() => session && void checkAdmin(session)}
+              disabled={checkingRole}
+            >
+              {checkingRole ? "Checking…" : "Check access again"}
+            </button>
             <button className="admin-button-secondary" onClick={signOut}>
               Sign out
             </button>
