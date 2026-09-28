@@ -94,7 +94,7 @@ function HealthcareStudyPage() {
                 <Link
                   className="work-open"
                   to="/work/$slug"
-                  params={{ slug: "provider-workflow-modernization" }}
+                  params={{ slug: "healthcare-platform-enhancement" }}
                 >
                   Provider workflow case study <span className="arrow">↗</span>
                 </Link>

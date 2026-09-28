@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { EvidenceViewer, ProjectScene, WorkflowExplorer } from "@/components/site/ProjectScene";
 import {
   type SelectedWork,
   getEvidenceFallbackPath,
+  getProjectPresentation,
   mergeCaseStudy,
-  shouldContainEvidence,
   useSelectedWork,
   useMediaUrl,
 } from "@/lib/portfolio";
@@ -11,252 +13,351 @@ import {
 export const Route = createFileRoute("/work/$slug")({
   head: () => ({
     meta: [
-      { title: "Selected work — O. Dinesh Kumar" },
-      { name: "description", content: "Product decisions, workflows, evidence and learning." },
+      { title: "Inside the work — O. Dinesh Kumar" },
+      {
+        name: "description",
+        content: "The context, systems, decisions and evidence behind the product.",
+      },
     ],
   }),
   component: CaseStudyPage,
 });
 
+const ALIASES: Record<string, string> = {
+  "enterprise-operations-suite": "enterprise-workforce-platform",
+  "construction-progress-billing": "construction-billing-sov",
+  "provider-workflow-modernization": "healthcare-platform-enhancement",
+  "school-operations-platform": "school-management-saas",
+  "local-service-discovery": "service-marketplace-booking",
+};
+
 function CaseStudyPage() {
   const { slug } = Route.useParams();
-  const { data: work = [], isLoading, isFetching, isError } = useSelectedWork();
-  const item = work.find((project) => project.slug === slug && project.visible);
-
-  if (isLoading || (!isError && isFetching && work.length === 0)) {
-    return <main className="case-page page-wrap case-loading">Loading the case study…</main>;
-  }
-
-  if (isError || !item) {
+  const { data: work = [], isLoading, isFetching, isError, refetch } = useSelectedWork();
+  const publicWork = work.filter((item) => item.visible);
+  const item = publicWork.find(
+    (project) => project.slug === slug || project.slug === ALIASES[slug],
+  );
+  if (isLoading || (!isError && isFetching && work.length === 0))
     return (
-      <main className="case-page page-wrap case-missing">
-        <Link className="case-back" to="/">
-          ← Portfolio
-        </Link>
-        <p className="section-kicker">Project unavailable</p>
-        <h1>That work isn’t public.</h1>
-        <p>The project may have been moved into the private archive.</p>
-        <Link className="text-action" to="/">
-          Return to selected work ↗
-        </Link>
+      <main className="exhibit-site case-state folio-wrap" aria-live="polite">
+        <Link to="/">← Portfolio</Link>
+        <p>Opening the project…</p>
       </main>
     );
-  }
-
-  return <CaseStudy item={item} />;
+  if (isError || !item)
+    return (
+      <main className="exhibit-site case-state folio-wrap">
+        <Link to="/">← Portfolio</Link>
+        <p className="folio-label">{isError ? "Connection interrupted" : "Project unavailable"}</p>
+        <h1>{isError ? "The archive couldn’t load." : "That work isn’t public."}</h1>
+        <p>
+          {isError
+            ? "Try loading the project again."
+            : "It may have moved into the private archive."}
+        </p>
+        {isError ? (
+          <button className="folio-link" onClick={() => void refetch()}>
+            Try again ↗
+          </button>
+        ) : (
+          <Link to="/" hash="work">
+            Return to selected work ↗
+          </Link>
+        )}
+      </main>
+    );
+  const next = publicWork[(publicWork.indexOf(item) + 1) % publicWork.length];
+  return <CaseStudy item={item} next={next?.id === item.id ? undefined : next} key={item.id} />;
 }
 
-function CaseStudy({ item }: { item: SelectedWork }) {
+function CaseStudy({ item, next }: { item: SelectedWork; next: SelectedWork | undefined }) {
   const details = mergeCaseStudy(item.slug, item.case_study);
-  const mediaUrl = useMediaUrl(item.image_path || getEvidenceFallbackPath(item.slug));
-  const fallbackMediaUrl = useMediaUrl(item.image_path ? getEvidenceFallbackPath(item.slug) : null);
-  const evidenceUrl = mediaUrl || fallbackMediaUrl;
-  const evidencePath = item.image_path || getEvidenceFallbackPath(item.slug);
-  const containEvidence = shouldContainEvidence(evidencePath);
-  const evidenceCaption = details.evidence_caption || item.evidence_type || "Project evidence";
-  const decisions = details.decisions ?? [];
-  const productWorkflow = details.product_workflow?.length
-    ? details.product_workflow
-    : item.workflow;
-  const stage = details.stage || "Product definition";
+  const presentation = getProjectPresentation(item);
+  const steps = details.product_workflow?.length ? details.product_workflow : item.workflow;
+  const mainPath = item.image_path || getEvidenceFallbackPath(item.slug);
+  const gallery = [
+    ...(mainPath
+      ? [
+          {
+            image_path: mainPath,
+            caption: details.evidence_caption || item.evidence_type || "Project artifact",
+          },
+        ]
+      : []),
+    ...(details.gallery || []).filter((image) => image.image_path?.trim()),
+  ];
+  const [section, setSection] = useState("overview");
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setSection(entry.target.id);
+        });
+      },
+      { rootMargin: "-18% 0px -55% 0px" },
+    );
+    document
+      .querySelectorAll("[data-case-section]")
+      .forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <main className="case-page">
-      <div className="page-wrap">
-        <div className="case-topline">
-          <Link className="case-back" to="/">
-            ← Portfolio
-          </Link>
-          <span className="case-page-number">Selected work / {item.category}</span>
-        </div>
-        <header className="case-hero">
-          <div
-            className={
-              "case-hero-grid" +
-              (evidenceUrl ? " case-hero-grid--has-media" : " case-hero-grid--text")
-            }
-          >
-            <div className="case-hero-copy">
-              <p className="section-kicker">Product case study</p>
-              <h1 className="case-title">{item.title}</h1>
-              <p className="case-deck">{item.short_description}</p>
+    <div className={`exhibit-site project-case case-world-${presentation}`} id="top">
+      <a className="skip-link" href="#overview">
+        Skip to case study
+      </a>
+      <header className="case-header folio-wrap">
+        <Link to="/" hash="work" className="folio-link">
+          ← All work
+        </Link>
+        <span className="folio-label">Dinesh Kumar / Product practice</span>
+        <a href="/#contact" className="folio-link">
+          Let’s talk ↗
+        </a>
+      </header>
+      <main>
+        <section className="case-masthead folio-wrap">
+          <p className="folio-label">{item.category} / Product case study</p>
+          <h1>{item.title}</h1>
+          <div className="case-masthead-bottom">
+            <p>{item.short_description}</p>
+            <div>
+              <span className="folio-label">
+                {details.role_label || "Product definition & delivery"}
+              </span>
+              {details.timeline ? <span className="folio-label">{details.timeline}</span> : null}
+              <a href="#overview" className="folio-link">
+                Inside the work ↓
+              </a>
             </div>
-            {evidenceUrl ? (
-              <figure
-                className={"case-hero-media" + (containEvidence ? " case-hero-media--contain" : "")}
-              >
-                <div className="case-hero-media-frame">
-                  <img src={evidenceUrl} alt={item.title + ": " + evidenceCaption} />
-                </div>
-                <figcaption className="case-media-caption">{evidenceCaption}</figcaption>
-              </figure>
+          </div>
+          <ProjectScene item={item} />
+        </section>
+        <nav className="case-contents" aria-label="Case study contents">
+          <div className="folio-wrap">
+            <span className="folio-label">Inside the work</span>
+            {[
+              ["overview", "01 / Context"],
+              ["system", "02 / System"],
+              ["decisions", "03 / Decisions"],
+              ["outcome", "04 / Outcome"],
+            ].map(([id, label]) => (
+              <a href={`#${id}`} aria-current={section === id ? "location" : undefined} key={id}>
+                {label}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <section className="case-overview folio-wrap case-chapter" id="overview" data-case-section>
+          <div className="case-chapter-title">
+            <p className="folio-label">01 / Context & complexity</p>
+            <h2>
+              {presentation === "workspace"
+                ? "The hard part lives between modules."
+                : presentation === "flow"
+                  ? "Every amount has a history."
+                  : presentation === "map"
+                    ? "First, understand what’s there."
+                    : "Start with the real constraint."}
+            </h2>
+          </div>
+          <div className="case-context-body">
+            <div>
+              <h3 className="folio-label">The problem</h3>
+              <p className="case-problem">{item.challenge}</p>
+            </div>
+            <div>
+              <h3 className="folio-label">The context</h3>
+              <p>{details.context || item.short_description}</p>
+            </div>
+            <div className="case-ownership">
+              <h3 className="folio-label">What I owned</h3>
+              <p>{item.contribution}</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="case-system" id="system" data-case-section>
+          <div className="folio-wrap">
+            <div className="case-system-heading">
+              <p className="folio-label">
+                02 / {presentation === "workspace" ? "Delivery system" : "Product workflow"}
+              </p>
+              <h2>
+                {presentation === "workspace"
+                  ? "From shared rules to release readiness."
+                  : "Follow the work."}
+              </h2>
+              <p>Explore the sequence.</p>
+            </div>
+            <WorkflowExplorer steps={steps} />
+          </div>
+        </section>
+
+        <section
+          className="case-chapter case-decision-section folio-wrap"
+          id="decisions"
+          data-case-section
+        >
+          <div className="case-chapter-title">
+            <p className="folio-label">03 / Important decisions</p>
+            <h2>
+              The choices
+              <br />
+              behind the work.
+            </h2>
+          </div>
+          <div className="decision-records">
+            {details.decisions?.length ? (
+              details.decisions.map((decision, index) => (
+                <article key={decision}>
+                  <span className="folio-label">{String(index + 1).padStart(2, "0")}</span>
+                  <p>{decision}</p>
+                </article>
+              ))
+            ) : (
+              <p>{item.contribution}</p>
+            )}
+          </div>
+        </section>
+
+        <section className="case-source folio-wrap" id="evidence">
+          <div className="case-source-heading">
+            <p className="folio-label">Evidence / Working material</p>
+            <h2>Look closer.</h2>
+            <span className="folio-label">
+              {String(gallery.length).padStart(2, "0")} public{" "}
+              {gallery.length === 1 ? "artifact" : "artifacts"}
+            </span>
+          </div>
+          {gallery.length ? (
+            <div className="source-gallery">
+              {gallery.map((asset, index) => (
+                <SourceArtifact
+                  key={`${asset.image_path}-${index}`}
+                  path={asset.image_path}
+                  title={item.title}
+                  caption={asset.caption}
+                  index={index}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="source-empty">
+              The public record contains workflow and delivery notes. No public screen is attached.
+            </p>
+          )}
+          {details.evidence_items?.length ? (
+            <details className="evidence-inventory">
+              <summary>
+                Artifact notes <span aria-hidden="true">+</span>
+              </summary>
+              <ul>
+                {details.evidence_items.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
+        </section>
+
+        <section className="case-outcome" id="outcome" data-case-section>
+          <div className="folio-wrap">
+            <p className="folio-label">04 / Delivery & outcome</p>
+            <div className="outcome-grid">
+              <div>
+                <h2>
+                  What moved
+                  <br />
+                  forward.
+                </h2>
+                {details.stage ? <p className="delivery-stage">{details.stage}</p> : null}
+              </div>
+              <div>
+                <h3 className="folio-label">What shipped / advanced</h3>
+                {details.shipped?.length ? (
+                  <ul>
+                    {details.shipped.map((deliverable) => (
+                      <li key={deliverable}>{deliverable}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>
+                    The available record describes the product work without a public release state.
+                  </p>
+                )}
+                <h3 className="folio-label">Outcome</h3>
+                <p className="outcome-statement">{item.outcome}</p>
+              </div>
+            </div>
+            {details.learning ? (
+              <div className="learning-note">
+                <span className="folio-label">What I carry forward</span>
+                <p>{details.learning}</p>
+              </div>
+            ) : null}
+            {details.live_url ? (
+              <a className="folio-link" href={details.live_url} target="_blank" rel="noreferrer">
+                Open the product ↗
+              </a>
             ) : null}
           </div>
-          <div className="case-summary-strip">
-            <Summary
-              label="My role"
-              value={item.contribution || "Product definition and delivery"}
-            />
-            <Summary label="Stage" value={stage} />
-            <Summary label="Evidence" value={item.evidence_type || "Project evidence"} />
-          </div>
-        </header>
-
-        <div className="case-body">
-          <CaseSection number="01" label="Problem" title="What needed to change">
-            <p>{item.challenge}</p>
-          </CaseSection>
-
-          <CaseSection number="02" label="Context" title="The system around the work">
-            <p>{details.context || item.short_description}</p>
-          </CaseSection>
-
-          <CaseSection number="03" label="What I owned" title="From ambiguity to a buildable plan">
-            <p>{item.contribution}</p>
-          </CaseSection>
-
-          <CaseSection
-            number="04"
-            label="Important decisions"
-            title="Decisions that shaped the product"
-          >
-            {decisions.length ? (
-              <ol className="case-decisions">
-                {decisions.map((decision, index) => (
-                  <li key={decision}>
-                    <span>{String(index + 1).padStart(2, "0")}</span>
-                    <p>{decision}</p>
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p>Decision detail is available in the project record and supporting artifacts.</p>
-            )}
-          </CaseSection>
-
-          <CaseSection number="05" label="Product / workflow" title="The path through the product">
-            {productWorkflow.length ? (
-              <div className="workflow-rail">
-                {productWorkflow.map((step, index) => (
-                  <div className="workflow-step" key={step}>
-                    <span>{String(index + 1).padStart(2, "0")}</span>
-                    <strong>{step}</strong>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p>Workflow detail has not been added to this project record.</p>
-            )}
-          </CaseSection>
-
-          <CaseSection number="06" label="Evidence" title="A working artifact">
-            {details.evidence_caption ? <p>{details.evidence_caption}</p> : null}
-            {details.evidence_items?.length ? <List items={details.evidence_items} /> : null}
-            {evidenceUrl ? (
-              <figure className="case-evidence">
-                <img
-                  src={evidenceUrl}
-                  alt={
-                    item.title +
-                    (details.evidence_caption ? ": " + details.evidence_caption : " evidence")
-                  }
-                />
-                <figcaption>{evidenceCaption}</figcaption>
-              </figure>
-            ) : (
-              <div className="evidence-note">
-                <span className="mono-label">Evidence note</span>
-                <p>
-                  No public image is attached to this work. The project record and workflow notes
-                  remain available here.
-                </p>
-              </div>
-            )}
-          </CaseSection>
-
-          <CaseSection number="07" label="What shipped" title="What reached the team">
-            {details.shipped?.length ? (
-              <List items={details.shipped} />
-            ) : (
-              <p>
-                The available project record describes the product work, but does not specify a
-                public release state.
-              </p>
-            )}
-          </CaseSection>
-
-          <CaseSection number="08" label="Outcome" title="What the work made possible">
-            <p>{item.outcome}</p>
-          </CaseSection>
-
-          <CaseSection number="09" label="Learning" title="What I carry forward">
-            <p className="case-learning">
-              {details.learning ||
-                "Make the hidden rules visible early. It gives the team a stronger basis for scope, sequence and delivery."}
-            </p>
-          </CaseSection>
-        </div>
-
-        <div className="page-wrap case-next">
-          <Link to="/" hash="work">
-            Back to selected work <span aria-hidden="true">↗</span>
-          </Link>
-          <a
-            href="#top"
-            onClick={(event) => {
-              event.preventDefault();
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          >
-            Back to top ↑
-          </a>
-        </div>
-      </div>
-    </main>
-  );
-}
-
-function Summary({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="case-summary">
-      <span>{label}</span>
-      <strong>{value}</strong>
+        </section>
+        <section className="case-next-project folio-wrap">
+          {next ? (
+            <>
+              <span className="folio-label">Continue exploring / {next.category}</span>
+              <Link to="/work/$slug" params={{ slug: next.slug }}>
+                <h2>{next.title}</h2>
+                <span aria-hidden="true">↗</span>
+              </Link>
+            </>
+          ) : (
+            <Link to="/" hash="work" className="folio-link">
+              Return to the work ↗
+            </Link>
+          )}
+        </section>
+      </main>
+      <footer className="folio-footer folio-wrap">
+        <Link to="/">O. Dinesh Kumar</Link>
+        <a href="#top">Back to top ↑</a>
+      </footer>
     </div>
   );
 }
 
-function CaseSection({
-  number,
-  label,
+function SourceArtifact({
+  path,
   title,
-  children,
+  caption,
+  index,
 }: {
-  number: string;
-  label: string;
+  path: string;
   title: string;
-  children: React.ReactNode;
+  caption: string;
+  index: number;
 }) {
+  const url = useMediaUrl(path);
   return (
-    <section className="case-section">
-      <div className="case-section-grid">
-        <p className="case-section-label">
-          {number} / {label}
-        </p>
-        <div className="case-section-content">
-          <h2>{title}</h2>
-          {children}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function List({ items }: { items: string[] }) {
-  return (
-    <ul className="case-list">
-      {items.map((item) => (
-        <li key={item}>{item}</li>
-      ))}
-    </ul>
+    <figure className="source-artifact">
+      {url ? (
+        <>
+          <div className="source-image">
+            <img src={url} alt={caption || `${title} evidence`} loading="lazy" />
+            <EvidenceViewer url={url} title={title} caption={caption} label="Inspect artifact ↗" />
+          </div>
+          <figcaption>
+            <span className="folio-label">{String(index + 1).padStart(2, "0")}</span>
+            <p>{caption}</p>
+          </figcaption>
+        </>
+      ) : (
+        <p>Loading this artifact…</p>
+      )}
+    </figure>
   );
 }

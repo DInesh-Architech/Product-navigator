@@ -37,6 +37,14 @@ export type Resume = {
 };
 
 export type CaseStudyDetails = {
+  presentation?: "workspace" | "flow" | "map" | "image";
+  cover_title?: string;
+  cover_summary?: string;
+  hero_image_path?: string;
+  role_label?: string;
+  timeline?: string;
+  live_url?: string;
+  gallery?: Array<{ image_path: string; caption: string }>;
   stage?: string;
   context?: string;
   decisions?: string[];
@@ -207,6 +215,30 @@ export function shouldContainEvidence(path: string | null | undefined): boolean 
   );
 }
 
+export function getProjectPresentation(item: SelectedWork): "workspace" | "flow" | "map" | "image" {
+  if (item.case_study?.presentation) return item.case_study.presentation;
+  if (/enterprise-workforce|enterprise-operations/.test(item.slug)) return "workspace";
+  if (/construction/.test(item.slug)) return "flow";
+  if (/healthcare|provider|school/.test(item.slug)) return "map";
+  return "image";
+}
+
+/** Public prototype captures, taken from the linked products on 28 September 2026. */
+export function getBuildEvidence(item: IndependentWork): { path: string | null; caption: string } {
+  if (item.image_path) return { path: item.image_path, caption: "Product preview" };
+  if (item.live_url?.includes("real-wealth-intelligence.vercel.app"))
+    return {
+      path: "/evidence/real-wealth-live.webp",
+      caption: "Live prototype capture · Prepared scenarios, no live data",
+    };
+  if (item.live_url?.includes("hi-quote.vercel.app"))
+    return {
+      path: "/evidence/hi-quote-live.webp",
+      caption: "Live prototype capture · BuildWise / HI-Quote",
+    };
+  return { path: null, caption: "" };
+}
+
 export function getCaseStudyFallback(slug: string): CaseStudyDetails {
   const alias: Record<string, string> = {
     "enterprise-operations-suite": "enterprise-workforce-platform",
@@ -343,23 +375,22 @@ export async function getMediaUrl(path: string): Promise<string | null> {
 
 /** Resolves a stored media path into a temporary viewable URL. */
 export function useMediaUrl(path: string | null | undefined) {
-  const [url, setUrl] = useState<string | null>(null);
+  const direct =
+    path && (/^(https?:|data:|blob:)/i.test(path) || path.startsWith("/")) ? path : null;
+  const [resolved, setResolved] = useState<{ path: string; url: string | null } | null>(null);
 
   useEffect(() => {
     let active = true;
-    if (!path) {
-      setUrl(null);
-      return;
-    }
+    if (!path || direct) return;
     getMediaUrl(path).then((u) => {
-      if (active) setUrl(u);
+      if (active) setResolved({ path, url: u });
     });
     return () => {
       active = false;
     };
-  }, [path]);
+  }, [path, direct]);
 
-  return url;
+  return direct || (resolved && resolved.path === path ? resolved.url : null);
 }
 
 export const ACCENTS = ["mint", "cobalt", "coral", "lilac", "turmeric", "sky"] as const;

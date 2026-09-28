@@ -1005,6 +1005,12 @@ function CaseStudyFields({
     form["case_study"] && typeof form["case_study"] === "object" ? form["case_study"] : {}
   ) as Record<string, unknown>;
   const fields = [
+    { key: "cover_title", label: "Exhibition title (optional, short title for homepage)" },
+    { key: "cover_summary", label: "Exhibition summary (optional)", kind: "area" as const },
+    { key: "hero_image_path", label: "Hero image path (optional, defaults to the evidence image)" },
+    { key: "role_label", label: "Short role label (optional)" },
+    { key: "timeline", label: "Timeline (optional, only add confirmed dates)" },
+    { key: "live_url", label: "Live product URL (optional)" },
     { key: "stage", label: "Stage" },
     { key: "context", label: "Context" },
     { key: "decisions", label: "Important decisions (one per line)", kind: "lines" as const },
@@ -1018,9 +1024,45 @@ function CaseStudyFields({
     { key: "shipped", label: "What shipped / advanced (one per line)", kind: "lines" as const },
     { key: "learning", label: "Learning", kind: "area" as const },
   ];
+  const gallery = (Array.isArray(details["gallery"]) ? details["gallery"] : []) as Array<{
+    image_path: string;
+    caption: string;
+  }>;
+  function changeGallery(index: number, key: "image_path" | "caption", value: string) {
+    update(
+      "gallery",
+      gallery.map((asset, i) => (i === index ? { ...asset, [key]: value } : asset)),
+    );
+  }
+  function moveGallery(index: number, direction: number) {
+    const reordered = [...gallery];
+    const other = index + direction;
+    if (other < 0 || other >= reordered.length) return;
+    [reordered[index], reordered[other]] = [reordered[other]!, reordered[index]!];
+    update("gallery", reordered);
+  }
   return (
     <div className="admin-case-fields">
       <h3>Case study details</h3>
+      <p className="admin-field-help">
+        Presentation, captions and gallery order use the existing case-study record. No database
+        migration is needed.
+      </p>
+      <div className="admin-field admin-field--wide">
+        <label htmlFor="project-presentation">Project presentation</label>
+        <select
+          id="project-presentation"
+          className="admin-select"
+          value={String(details["presentation"] || "")}
+          onChange={(event) => update("presentation", event.target.value)}
+        >
+          <option value="">Automatic, based on the project</option>
+          <option value="workspace">Workspace / interface fragments</option>
+          <option value="flow">Construction / workflow</option>
+          <option value="map">Healthcare / system map</option>
+          <option value="image">Full image</option>
+        </select>
+      </div>
       <div className="admin-case-grid">
         {fields.map((field) => (
           <Field
@@ -1032,6 +1074,72 @@ function CaseStudyFields({
             onChange={(value) => update(field.key, value)}
           />
         ))}
+      </div>
+      <div className="admin-gallery-editor">
+        <h3>Additional evidence gallery</h3>
+        <p className="admin-field-help">
+          The main evidence image appears first. Add public URLs or uploaded media paths below;
+          captions should explain what each artifact proves and whether it is reconstructed.
+        </p>
+        {gallery.map((asset, index) => (
+          <div className="admin-gallery-item" key={index}>
+            <div className="admin-gallery-toolbar">
+              <strong>Artifact {index + 1}</strong>
+              <div>
+                <button
+                  type="button"
+                  className="admin-text-button"
+                  disabled={index === 0}
+                  aria-label={`Move artifact ${index + 1} up`}
+                  onClick={() => moveGallery(index, -1)}
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  className="admin-text-button"
+                  disabled={index === gallery.length - 1}
+                  aria-label={`Move artifact ${index + 1} down`}
+                  onClick={() => moveGallery(index, 1)}
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  className="admin-text-button"
+                  onClick={() =>
+                    update(
+                      "gallery",
+                      gallery.filter((_, i) => i !== index),
+                    )
+                  }
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+            <Field
+              label={`Artifact ${index + 1} image path or URL`}
+              value={asset.image_path}
+              wide
+              onChange={(value) => changeGallery(index, "image_path", value)}
+            />
+            <Field
+              label={`Artifact ${index + 1} caption`}
+              value={asset.caption}
+              kind="area"
+              wide
+              onChange={(value) => changeGallery(index, "caption", value)}
+            />
+          </div>
+        ))}
+        <button
+          type="button"
+          className="admin-button-secondary"
+          onClick={() => update("gallery", [...gallery, { image_path: "", caption: "" }])}
+        >
+          Add evidence image
+        </button>
       </div>
     </div>
   );
