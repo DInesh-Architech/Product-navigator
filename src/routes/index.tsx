@@ -61,7 +61,11 @@ function Portfolio() {
         .filter(Boolean)
     : ["Architecture", "Systems thinking", "Digital products", "Product delivery"];
   if (!journey.some((step) => /AI|building/i.test(step))) journey.push("AI product building");
-  const headline = settings?.hero_headline?.trim() || "I make complex work buildable.";
+  const savedHeadline = settings?.hero_headline?.trim();
+  const headline =
+    !savedHeadline || savedHeadline === "I turn ambiguous business needs into buildable products."
+      ? "Complexity, made buildable."
+      : savedHeadline;
   const words = headline.split(/\s+/);
   const lastWord = words.length > 2 ? words.pop() : "";
 

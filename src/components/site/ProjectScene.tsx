@@ -34,6 +34,11 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
   const fallback = useMediaUrl(getEvidenceFallbackPath(item.slug));
   const image = url || fallback;
   const modules = style === "workspace" && path?.endsWith("enterprise-operations.webp");
+  const workflowCrop = path?.endsWith("construction-progress-billing.svg")
+    ? { desktop: "55 285 1340 595", mobile: "55 290 1340 345" }
+    : path?.endsWith("provider-current-state.svg")
+      ? { desktop: "55 275 1350 585", mobile: "55 275 1350 220" }
+      : null;
   const steps = details.product_workflow?.length ? details.product_workflow : item.workflow;
   const caption = details.evidence_caption || item.evidence_type || "Project artifact";
   const id = useId();
@@ -80,7 +85,13 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
             {details.decisions?.[0] ? <p className="behind-note">{details.decisions[0]}</p> : null}
           </div>
         ) : modules && image ? (
-          <div className="module-canvas" key="modules">
+          <div
+            className="module-canvas"
+            key="modules"
+            tabIndex={0}
+            role="region"
+            aria-label="Module screen sequence"
+          >
             <div className="module-crosshair" aria-hidden="true">
               <span />
               <span />
@@ -110,11 +121,37 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
                   ? "Actors → states → handoffs"
                   : "Product / experience"}
             </span>
-            <img
-              src={image}
-              alt={`${item.title}: ${caption}`}
-              loading={compact ? "eager" : "lazy"}
-            />
+            {workflowCrop ? (
+              <div
+                className="source-crop-scroll"
+                tabIndex={0}
+                role="region"
+                aria-label="Workflow detail, scroll to explore"
+              >
+                <svg
+                  className="source-crop-desktop"
+                  viewBox={workflowCrop.desktop}
+                  role="img"
+                  aria-label={`${item.title}: ${caption}`}
+                >
+                  <image href={image} width="1440" height="960" />
+                </svg>
+                <svg
+                  className="source-crop-mobile"
+                  viewBox={workflowCrop.mobile}
+                  role="img"
+                  aria-label={`${item.title}: ${caption}`}
+                >
+                  <image href={image} width="1440" height="960" />
+                </svg>
+              </div>
+            ) : (
+              <img
+                src={image}
+                alt={`${item.title}: ${caption}`}
+                loading={compact ? "eager" : "lazy"}
+              />
+            )}
           </div>
         ) : (
           <div className="scene-no-image">
@@ -123,6 +160,11 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
             <span>Explore the workflow and decisions below.</span>
           </div>
         )}
+        {!behind && (modules || workflowCrop) ? (
+          <span className="mobile-scene-cue">
+            {modules ? "Swipe through the modules →" : "Scroll to follow the workflow →"}
+          </span>
+        ) : null}
       </div>
       <div className="scene-footer">
         <span>

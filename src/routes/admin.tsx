@@ -38,7 +38,12 @@ const FIELD_SPECS: Record<
   Array<{ key: string; label: string; kind?: "area" | "lines"; wide?: boolean; help?: string }>
 > = {
   settings: [
-    { key: "hero_headline", label: "Hero headline", wide: true },
+    {
+      key: "hero_headline",
+      label: "Hero headline",
+      wide: true,
+      help: "Use a short editorial headline. The original starter headline is presented as ‘Complexity, made buildable.’; any custom wording overrides it.",
+    },
     { key: "hero_supporting", label: "Hero supporting line", kind: "area", wide: true },
     { key: "contact_email", label: "Contact email" },
     { key: "location", label: "Location" },
