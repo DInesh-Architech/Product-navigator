@@ -7,6 +7,7 @@ import {
   type VisualWork,
   getEvidenceFallbackPath,
   mergeCaseStudy,
+  shouldContainEvidence,
   useAbout,
   useHealthcareStudy,
   useIndependentWork,
@@ -188,6 +189,12 @@ function Portfolio() {
   const projects = featured.length ? featured : FALLBACK_FEATURED;
   const secondaryWork = visibleWork.filter((item) => !item.featured);
   const visibleBuilds = (builds ?? []).filter((item) => item.visible);
+  const leadBuild =
+    visibleBuilds.find((item) => item.featured && item.image_path) ??
+    visibleBuilds.find((item) => item.image_path);
+  const orderedBuilds = leadBuild
+    ? [leadBuild, ...visibleBuilds.filter((item) => item.id !== leadBuild.id)]
+    : visibleBuilds;
   const visibleVisuals = (visuals ?? []).filter((item) => item.visible);
   const imageWork = buildImageWork(visibleVisuals, secondaryWork);
 
@@ -267,8 +274,13 @@ function Portfolio() {
               </div>
             </div>
             <div className="build-grid">
-              {visibleBuilds.map((item, index) => (
-                <BuildItem key={item.id} item={item} index={index} />
+              {orderedBuilds.map((item, index) => (
+                <BuildItem
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  lead={item.id === leadBuild?.id}
+                />
               ))}
             </div>
           </div>
@@ -491,44 +503,58 @@ function ProjectImage({
   const url = useMediaUrl(path);
   const fallbackUrl = useMediaUrl(fallbackPath);
   const imageUrl = url || fallbackUrl;
-  const fitClass = (path || fallbackPath)?.endsWith("enterprise-operations.webp")
-    ? " work-visual--contain"
-    : "";
+  const fitClass = shouldContainEvidence(path || fallbackPath) ? " work-visual--contain" : "";
   return (
-    <div className={"work-visual" + fitClass} aria-label={"Evidence for " + title}>
-      {imageUrl ? (
-        <img src={imageUrl} alt={title + ": " + caption} loading={index === 0 ? "eager" : "lazy"} />
-      ) : null}
-      <span className="work-visual-index" aria-hidden="true">
-        {String(index + 1).padStart(2, "0")}
-      </span>
-      <span className="work-visual-caption">{caption}</span>
-    </div>
+    <figure className={"work-visual" + fitClass} aria-label={"Evidence for " + title}>
+      <div className="work-visual-frame">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={title + ": " + caption}
+            loading={index === 0 ? "eager" : "lazy"}
+          />
+        ) : null}
+        <span className="work-visual-index" aria-hidden="true">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+      </div>
+      <figcaption className="work-visual-caption">{caption}</figcaption>
+    </figure>
   );
 }
 
-function BuildItem({ item, index }: { item: IndependentWork; index: number }) {
+function BuildItem({ item, index, lead }: { item: IndependentWork; index: number; lead: boolean }) {
   const link = item.live_url || item.repo_url;
+  const imageUrl = useMediaUrl(item.image_path);
+  const fitClass = shouldContainEvidence(item.image_path) ? " build-media--contain" : "";
+  const className = "build-item" + (lead && imageUrl ? " build-item--lead" : "");
   const inner = (
     <>
-      <div className="build-topline">
-        <span>{String(index + 1).padStart(2, "0")} / Independent</span>
-        <span className="build-status">{item.status}</span>
-      </div>
-      <h3 className="build-title">{item.title}</h3>
-      <p className="build-description">{item.description}</p>
-      {item.capabilities?.length ? (
-        <p className="build-capabilities">{item.capabilities.join(" · ")}</p>
+      {imageUrl ? (
+        <figure className={"build-media" + fitClass}>
+          <img src={imageUrl} alt={item.title + " project image"} loading="lazy" />
+        </figure>
       ) : null}
-      {link ? <span className="build-link">Open project ↗</span> : null}
+      <div className="build-content">
+        <div className="build-topline">
+          <span>{String(index + 1).padStart(2, "0")} / Independent</span>
+          <span className="build-status">{item.status}</span>
+        </div>
+        <h3 className="build-title">{item.title}</h3>
+        <p className="build-description">{item.description}</p>
+        {item.capabilities?.length ? (
+          <p className="build-capabilities">{item.capabilities.join(" · ")}</p>
+        ) : null}
+        {link ? <span className="build-link">Open project ↗</span> : null}
+      </div>
     </>
   );
   return link ? (
-    <a className="build-item" href={link} target="_blank" rel="noreferrer">
+    <a className={className} href={link} target="_blank" rel="noreferrer">
       {inner}
     </a>
   ) : (
-    <article className="build-item">{inner}</article>
+    <article className={className}>{inner}</article>
   );
 }
 
@@ -550,9 +576,14 @@ function SupportTile({ item }: { item: VisualWork | SelectedWork }) {
   const imageUrl = url || fallbackUrl;
   const category = "category" in item ? item.category : "Product work";
   const panorama = path?.endsWith("service-discovery.webp");
+  const diagram = shouldContainEvidence(path);
   return (
     <article
-      className={"support-item reveal" + (panorama ? " support-item--panorama" : "")}
+      className={
+        "support-item reveal" +
+        (panorama ? " support-item--panorama" : "") +
+        (diagram ? " support-item--diagram" : "")
+      }
       data-reveal
     >
       <div className="support-image">

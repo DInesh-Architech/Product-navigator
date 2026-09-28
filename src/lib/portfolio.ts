@@ -201,6 +201,12 @@ export function getEvidenceFallbackPath(slug: string): string | null {
   return EVIDENCE_BY_SLUG[slug] ?? null;
 }
 
+export function shouldContainEvidence(path: string | null | undefined): boolean {
+  return Boolean(
+    path && (/\.svg(?:$|\?)/i.test(path) || path.endsWith("enterprise-operations.webp")),
+  );
+}
+
 export function getCaseStudyFallback(slug: string): CaseStudyDetails {
   const alias: Record<string, string> = {
     "enterprise-operations-suite": "enterprise-workforce-platform",

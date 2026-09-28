@@ -3,6 +3,7 @@ import {
   type SelectedWork,
   getEvidenceFallbackPath,
   mergeCaseStudy,
+  shouldContainEvidence,
   useSelectedWork,
   useMediaUrl,
 } from "@/lib/portfolio";
@@ -50,6 +51,9 @@ function CaseStudy({ item }: { item: SelectedWork }) {
   const mediaUrl = useMediaUrl(item.image_path || getEvidenceFallbackPath(item.slug));
   const fallbackMediaUrl = useMediaUrl(item.image_path ? getEvidenceFallbackPath(item.slug) : null);
   const evidenceUrl = mediaUrl || fallbackMediaUrl;
+  const evidencePath = item.image_path || getEvidenceFallbackPath(item.slug);
+  const containEvidence = shouldContainEvidence(evidencePath);
+  const evidenceCaption = details.evidence_caption || item.evidence_type || "Project evidence";
   const decisions = details.decisions ?? [];
   const productWorkflow = details.product_workflow?.length
     ? details.product_workflow
@@ -66,9 +70,28 @@ function CaseStudy({ item }: { item: SelectedWork }) {
           <span className="case-page-number">Selected work / {item.category}</span>
         </div>
         <header className="case-hero">
-          <p className="section-kicker">Product case study</p>
-          <h1 className="case-title">{item.title}</h1>
-          <p className="case-deck">{item.short_description}</p>
+          <div
+            className={
+              "case-hero-grid" +
+              (evidenceUrl ? " case-hero-grid--has-media" : " case-hero-grid--text")
+            }
+          >
+            <div className="case-hero-copy">
+              <p className="section-kicker">Product case study</p>
+              <h1 className="case-title">{item.title}</h1>
+              <p className="case-deck">{item.short_description}</p>
+            </div>
+            {evidenceUrl ? (
+              <figure
+                className={"case-hero-media" + (containEvidence ? " case-hero-media--contain" : "")}
+              >
+                <div className="case-hero-media-frame">
+                  <img src={evidenceUrl} alt={item.title + ": " + evidenceCaption} />
+                </div>
+                <figcaption className="case-media-caption">{evidenceCaption}</figcaption>
+              </figure>
+            ) : null}
+          </div>
           <div className="case-summary-strip">
             <Summary
               label="My role"
@@ -138,9 +161,7 @@ function CaseStudy({ item }: { item: SelectedWork }) {
                     (details.evidence_caption ? ": " + details.evidence_caption : " evidence")
                   }
                 />
-                <figcaption>
-                  {details.evidence_caption || item.evidence_type || "Project evidence"}
-                </figcaption>
+                <figcaption>{evidenceCaption}</figcaption>
               </figure>
             ) : (
               <div className="evidence-note">
