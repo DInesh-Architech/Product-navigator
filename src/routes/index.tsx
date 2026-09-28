@@ -243,6 +243,15 @@ function Portfolio() {
                 {about?.intro ||
                   "I work between business intent, user workflows, design and engineering. My focus is making the rules, decisions and handoffs clear enough to build."}
               </p>
+              {about?.transition_copy || settings?.hero_supporting ? (
+                <details className="journey-story">
+                  <summary>
+                    More about my practice <span aria-hidden="true">+</span>
+                  </summary>
+                  {about?.transition_copy ? <p>{about.transition_copy}</p> : null}
+                  {settings?.hero_supporting ? <p>{settings.hero_supporting}</p> : null}
+                </details>
+              ) : null}
               <div>
                 {resume?.file_path ? <ResumeLink path={resume.file_path} /> : null}
                 {settings?.linkedin_url ? (
