@@ -1451,6 +1451,50 @@ img {
   border-bottom: 1px solid var(--line-strong);
   color: var(--ink);
 }
+.admin-totp-qr-wrap {
+  display: grid;
+  place-items: center;
+  width: fit-content;
+  margin: 18px auto;
+  padding: 12px;
+  background: white;
+  border: 1px solid var(--line-strong);
+}
+.admin-totp-qr {
+  display: block;
+  width: 200px;
+  height: 200px;
+}
+.admin-totp-manual {
+  margin: 12px 0 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.admin-totp-manual summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.admin-totp-manual code {
+  display: block;
+  margin-top: 10px;
+  padding: 10px;
+  overflow-wrap: anywhere;
+  background: var(--paper);
+  color: var(--ink);
+  user-select: all;
+}
+.admin-text-button {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
 .locked-panel {
   margin-top: 24px;
   padding: 20px;

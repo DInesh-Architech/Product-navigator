@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { getMediaUrl } from "@/lib/portfolio";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { claimAdmin } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({ component: AdminPage });
 
@@ -127,11 +128,15 @@ function emptyRows(): Rows {
 
 function AdminPage() {
   const [email, setEmail] = useState("odkspav@gmail.com");
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
+  const [signInLinkSent, setSignInLinkSent] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
+  const [mfaStage, setMfaStage] = useState<"none" | "setup" | "challenge">("none");
+  const [factorId, setFactorId] = useState("");
+  const [qrCode, setQrCode] = useState("");
+  const [totpSecret, setTotpSecret] = useState("");
+  const [totpCode, setTotpCode] = useState("");
   const [activeTab, setActiveTab] = useState<AdminTab>("settings");
   const [rows, setRows] = useState<Rows>(emptyRows);
   const [hasCaseStudyColumn, setHasCaseStudyColumn] = useState(false);
@@ -140,57 +145,100 @@ function AdminPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
+  const authCheckId = useRef(0);
 
   const selectedRows = rows[activeTab];
-  const checkAdmin = useCallback(async (userId: string) => {
+  const checkAdmin = useCallback(async (nextSession: Session) => {
+    const checkId = ++authCheckId.current;
+    const isCurrent = () => checkId === authCheckId.current;
+    setSession(nextSession);
     setCheckingRole(true);
-    const { error: bootstrapError } = await supabase.rpc("claim_first_admin");
-    const { data, error: roleError } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-    if (roleError) {
-      setMessage("Could not verify this account’s admin role.");
-      setError(true);
-      setIsAdmin(false);
-    } else {
+    try {
+      const { data: aal, error: aalError } =
+        await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aalError) throw aalError;
+      if (!isCurrent()) return;
+
+      if (aal.currentLevel !== "aal2") {
+        const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+        if (factorsError) throw factorsError;
+        if (!isCurrent()) return;
+        const verifiedTotp = factors.totp.find((factor) => factor.status === "verified");
+        setIsAdmin(false);
+        setFactorId(verifiedTotp?.id ?? "");
+        setQrCode("");
+        setTotpSecret("");
+        setTotpCode("");
+        setMfaStage(verifiedTotp ? "challenge" : "setup");
+        setMessage("");
+        setError(false);
+        return;
+      }
+
+      setMfaStage("none");
+      setFactorId("");
+      setQrCode("");
+      setTotpSecret("");
+      setTotpCode("");
+
+      const bootstrap = await claimAdmin();
+      if (!isCurrent()) return;
+      const { data, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", nextSession.user.id);
+      if (!isCurrent()) return;
+
+      if (roleError) {
+        throw roleError;
+      }
       const allowed = Boolean(data?.some((role) => role.role === "admin"));
       setIsAdmin(allowed);
       if (allowed) {
         setMessage("");
         setError(false);
-      } else if (bootstrapError) {
-        setMessage(
-          "First-time admin setup is not installed yet. Run the one-time Supabase setup SQL.",
-        );
-        setError(true);
       } else {
         setMessage(
-          "This account is not authorized to manage the portfolio. Use the portfolio contact email.",
+          bootstrap.granted
+            ? "This account is not authorized to manage the portfolio."
+            : bootstrap.reason || "First-time admin setup could not be completed.",
         );
         setError(true);
       }
+    } catch (cause) {
+      if (!isCurrent()) return;
+      setIsAdmin(false);
+      setMessage(cause instanceof Error ? cause.message : "Could not verify admin access.");
+      setError(true);
+    } finally {
+      if (isCurrent()) setCheckingRole(false);
     }
-    setCheckingRole(false);
   }, []);
 
   const refreshSession = useCallback(async () => {
     const { data } = await supabase.auth.getSession();
-    setSession(data.session);
-    if (data.session) await checkAdmin(data.session.user.id);
+    if (data.session) await checkAdmin(data.session);
     else {
+      authCheckId.current += 1;
+      setSession(null);
       setIsAdmin(false);
+      setMfaStage("none");
       setCheckingRole(false);
     }
   }, [checkAdmin]);
 
   useEffect(() => {
     void refreshSession();
-    const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      if (nextSession) window.setTimeout(() => void checkAdmin(nextSession.user.id), 0);
-      else {
+    const { data } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (nextSession) {
+        setSession(nextSession);
+        if (["INITIAL_SESSION", "SIGNED_IN", "MFA_CHALLENGE_VERIFIED"].includes(event))
+          window.setTimeout(() => void checkAdmin(nextSession), 0);
+      } else {
+        authCheckId.current += 1;
+        setSession(null);
         setIsAdmin(false);
+        setMfaStage("none");
         setCheckingRole(false);
       }
     });
@@ -244,7 +292,7 @@ function AdminPage() {
     setForm(next ? { ...next } : null);
   }, [activeTab, rows, selectedId]);
 
-  async function requestOtp(event?: React.FormEvent<HTMLFormElement>) {
+  async function requestSignInLink(event?: React.FormEvent<HTMLFormElement>) {
     event?.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail) {
@@ -253,7 +301,7 @@ function AdminPage() {
       return;
     }
     setBusy(true);
-    setMessage("Sending a one-time sign-in email…");
+    setMessage("Sending a secure sign-in link…");
     setError(false);
     const { error: authError } = await supabase.auth.signInWithOtp({
       email: normalizedEmail,
@@ -267,51 +315,95 @@ function AdminPage() {
       setError(true);
     } else {
       setEmail(normalizedEmail);
-      setOtp("");
-      setOtpSent(true);
-      setMessage("Check your inbox for the one-time code or sign-in link.");
+      setSignInLinkSent(true);
+      setMessage("Open the sign-in link in your inbox. You’ll enter your authenticator code next.");
     }
     setBusy(false);
   }
 
-  async function verifyOtp(event: React.FormEvent<HTMLFormElement>) {
+  async function beginTotpEnrollment() {
+    setBusy(true);
+    setMessage("Preparing your authenticator setup…");
+    setError(false);
+    try {
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+      if (factorsError) throw factorsError;
+      const unfinished = factors.all.filter(
+        (factor) =>
+          factor.status === "unverified" && factor.friendly_name === "Product Navigator Admin",
+      );
+      for (const factor of unfinished) {
+        const { error: removeError } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
+        if (removeError) throw removeError;
+      }
+      const { data, error: enrollError } = await supabase.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: "Product Navigator Admin",
+      });
+      if (enrollError) throw enrollError;
+      setFactorId(data.id);
+      setQrCode(data.totp.qr_code);
+      setTotpSecret(data.totp.secret);
+      setTotpCode("");
+      setMessage(
+        "Scan the QR code in your authenticator app, then enter the 6-digit code it shows.",
+      );
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Could not start authenticator setup.");
+      setError(true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function verifyTotp(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const normalizedEmail = email.trim().toLowerCase();
-    const token = otp.trim();
-    if (!token) {
-      setMessage("Enter the code from your email, or open its sign-in link in this browser.");
+    const code = totpCode.replace(/\s/g, "");
+    if (!/^\d{6}$/.test(code)) {
+      setMessage("Enter the 6-digit code currently shown in your authenticator app.");
+      setError(true);
+      return;
+    }
+    if (!factorId) {
+      setMessage("Your authenticator setup needs to be restarted. Start setup again below.");
       setError(true);
       return;
     }
     setBusy(true);
-    setMessage("Verifying your code…");
+    setMessage(
+      mfaStage === "setup" && qrCode
+        ? "Verifying and enabling your authenticator…"
+        : "Verifying authenticator code…",
+    );
     setError(false);
-    const { error: authError } = await supabase.auth.verifyOtp({
-      email: normalizedEmail,
-      token,
-      type: "email",
-    });
-    if (authError) {
-      setMessage(authError.message);
+    const { error: verifyError } = await supabase.auth.mfa.challengeAndVerify({ factorId, code });
+    if (verifyError) {
+      setMessage(verifyError.message);
       setError(true);
     } else {
-      setOtp("");
-      setMessage("Code accepted. Checking admin access…");
+      setTotpCode("");
+      setQrCode("");
+      setTotpSecret("");
+      setMessage("Authenticator verified. Checking admin access…");
+      const { data } = await supabase.auth.getSession();
+      if (data.session) await checkAdmin(data.session);
     }
     setBusy(false);
   }
 
   function changeEmail() {
-    setOtpSent(false);
-    setOtp("");
+    setSignInLinkSent(false);
     setMessage("");
     setError(false);
   }
 
   async function signOut() {
     await supabase.auth.signOut();
+    authCheckId.current += 1;
     setSession(null);
     setIsAdmin(false);
+    setMfaStage("none");
+    setSignInLinkSent(false);
   }
 
   function chooseTab(tab: AdminTab) {
@@ -526,40 +618,28 @@ function AdminPage() {
           </Link>
           <section className="admin-login">
             <p className="section-kicker">Product Navigator / Private</p>
-            <h1>{otpSent ? "Check your inbox" : "Admin sign in"}</h1>
+            <h1>{signInLinkSent ? "Check your email" : "Admin sign in"}</h1>
             <p>
-              {otpSent
-                ? "Enter the one-time code from the email, or open its sign-in link in this browser."
-                : "Use the portfolio contact email. We’ll send a one-time sign-in code; no password is needed."}
+              {signInLinkSent
+                ? "Open the sign-in link in this browser. After that, enter the code from your authenticator app."
+                : "Enter the portfolio contact email. We’ll send a secure sign-in link, then ask for your authenticator code."}
             </p>
-            <form className="admin-login-form" onSubmit={otpSent ? verifyOtp : requestOtp}>
-              {otpSent ? (
-                <>
-                  <Field
-                    label="Verification code"
-                    value={otp}
-                    type="text"
-                    onChange={setOtp}
-                    autoComplete="one-time-code"
-                    inputMode="numeric"
-                    required
-                  />
-                  <button className="admin-button" type="submit" disabled={busy}>
-                    {busy ? "Verifying…" : "Verify and continue"}
-                  </button>
-                  <button
-                    className="admin-button-secondary"
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void requestOtp()}
-                  >
-                    Resend sign-in email
-                  </button>
-                  <button className="admin-button-secondary" type="button" onClick={changeEmail}>
-                    Use a different email
-                  </button>
-                </>
-              ) : (
+            {signInLinkSent ? (
+              <div className="admin-login-form">
+                <button
+                  className="admin-button"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void requestSignInLink()}
+                >
+                  {busy ? "Sending link…" : "Resend sign-in link"}
+                </button>
+                <button className="admin-button-secondary" type="button" onClick={changeEmail}>
+                  Use a different email
+                </button>
+              </div>
+            ) : (
+              <form className="admin-login-form" onSubmit={requestSignInLink}>
                 <>
                   <Field
                     label="Email address"
@@ -570,14 +650,104 @@ function AdminPage() {
                     required
                   />
                   <button className="admin-button" type="submit" disabled={busy}>
-                    {busy ? "Sending code…" : "Send one-time code"}
+                    {busy ? "Sending link…" : "Send sign-in link"}
                   </button>
                 </>
-              )}
-            </form>
+              </form>
+            )}
             <div className="admin-login-foot">
               <span>Only the portfolio contact email can claim admin access.</span>
               <Link to="/">Return to portfolio</Link>
+            </div>
+            <Notice message={message} isError={error} />
+          </section>
+        </div>
+      </main>
+    );
+  }
+
+  if (mfaStage !== "none") {
+    const isEnrollment = mfaStage === "setup";
+    return (
+      <main className="admin-shell">
+        <div className="admin-login-wrap">
+          <Link className="case-back" to="/">
+            ← Portfolio
+          </Link>
+          <section className="admin-login">
+            <p className="section-kicker">Product Navigator / Authenticator</p>
+            <h1>{isEnrollment ? "Set up your authenticator" : "Enter your authenticator code"}</h1>
+            {isEnrollment ? (
+              qrCode ? (
+                <>
+                  <p>
+                    Scan this QR code with Google Authenticator, Microsoft Authenticator, 1Password,
+                    or another TOTP app. Then enter its current 6-digit code to finish setup.
+                  </p>
+                  <div className="admin-totp-qr-wrap">
+                    <img className="admin-totp-qr" src={qrCode} alt="Authenticator setup QR code" />
+                  </div>
+                  <details className="admin-totp-manual">
+                    <summary>Can’t scan? Enter setup key manually</summary>
+                    <code>{totpSecret}</code>
+                  </details>
+                  <form className="admin-login-form" onSubmit={verifyTotp}>
+                    <Field
+                      label="6-digit authenticator code"
+                      value={totpCode}
+                      type="text"
+                      onChange={setTotpCode}
+                      autoComplete="one-time-code"
+                      inputMode="numeric"
+                      required
+                    />
+                    <button className="admin-button" type="submit" disabled={busy}>
+                      {busy ? "Verifying…" : "Verify and enable authenticator"}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <>
+                  <p>
+                    Add an authenticator app once. You’ll use its rotating 6-digit code each time
+                    you sign in to the admin panel.
+                  </p>
+                  <div className="admin-login-form">
+                    <button
+                      className="admin-button"
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void beginTotpEnrollment()}
+                    >
+                      {busy ? "Preparing setup…" : "Set up authenticator"}
+                    </button>
+                  </div>
+                </>
+              )
+            ) : (
+              <>
+                <p>Open your authenticator app and enter the current code for Product Navigator.</p>
+                <form className="admin-login-form" onSubmit={verifyTotp}>
+                  <Field
+                    label="6-digit authenticator code"
+                    value={totpCode}
+                    type="text"
+                    onChange={setTotpCode}
+                    autoComplete="one-time-code"
+                    inputMode="numeric"
+                    required
+                  />
+                  <button className="admin-button" type="submit" disabled={busy}>
+                    {busy ? "Verifying…" : "Verify and continue"}
+                  </button>
+                </form>
+              </>
+            )}
+            <div className="admin-login-foot">
+              <span>Email link verified for {session.user.email ?? "your account"}.</span>
+              <button className="admin-text-button" type="button" onClick={() => void signOut()}>
+                Sign out
+              </button>
             </div>
             <Notice message={message} isError={error} />
           </section>
