@@ -44,7 +44,13 @@ const FIELD_SPECS: Record<
       wide: true,
       help: "Use a short editorial headline. The original starter headline is presented as ‘Complexity, made buildable.’; any custom wording overrides it.",
     },
-    { key: "hero_supporting", label: "Hero supporting line", kind: "area", wide: true },
+    {
+      key: "hero_supporting",
+      label: "Hero proof line",
+      kind: "area",
+      wide: true,
+      help: "A short, concrete line about your product work. The original starter copy is displayed as ‘Contract defaults. Cross-module approvals. Clinical handoffs.’ Custom wording overrides it.",
+    },
     { key: "contact_email", label: "Contact email" },
     { key: "location", label: "Location" },
     { key: "linkedin_url", label: "LinkedIn URL" },
@@ -78,7 +84,11 @@ const FIELD_SPECS: Record<
   ],
   building: [
     { key: "title", label: "Project title" },
-    { key: "status", label: "Stage / status" },
+    {
+      key: "status",
+      label: "Stage / status",
+      help: "Use Concept until there is a working prototype. A concept description with no image, live URL or repository is presented as Concept.",
+    },
     { key: "display_order", label: "Display order" },
     { key: "size_variant", label: "Size variant" },
     { key: "description", label: "Description", kind: "area", wide: true },
@@ -1012,6 +1022,16 @@ function CaseStudyFields({
   const fields = [
     { key: "cover_title", label: "Exhibition title (optional, short title for homepage)" },
     { key: "cover_summary", label: "Exhibition summary (optional)", kind: "area" as const },
+    {
+      key: "cover_owned",
+      label: "Homepage: owned (optional, otherwise uses What I owned)",
+      kind: "area" as const,
+    },
+    {
+      key: "cover_decision",
+      label: "Homepage: key decision (optional, otherwise uses the first decision)",
+      kind: "area" as const,
+    },
     { key: "hero_image_path", label: "Hero image path (optional, defaults to the evidence image)" },
     { key: "role_label", label: "Short role label (optional)" },
     { key: "timeline", label: "Timeline (optional, only add confirmed dates)" },

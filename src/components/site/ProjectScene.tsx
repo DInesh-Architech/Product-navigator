@@ -52,7 +52,7 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
           {behind
             ? "The work beneath the interface"
             : modules
-              ? "Interface fragments"
+              ? "Module interfaces"
               : item.evidence_type || "Product artifact"}
         </span>
         {steps?.length ? (
@@ -85,29 +85,35 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
             {details.decisions?.[0] ? <p className="behind-note">{details.decisions[0]}</p> : null}
           </div>
         ) : modules && image ? (
-          <div
-            className="module-canvas"
-            key="modules"
-            tabIndex={0}
-            role="region"
-            aria-label="Module screen sequence"
-          >
-            <div className="module-crosshair" aria-hidden="true">
-              <span />
-              <span />
-            </div>
-            <div className="module-axis" aria-hidden="true">
-              Roles / approvals / shared data
-            </div>
-            {MODULE_CROPS.map((crop, index) => (
-              <div className={`module-fragment module-fragment-${index}`} key={crop.name}>
-                <SourceCrop
-                  url={image}
-                  box={crop.box}
-                  label={`${crop.name} module — crop of the supplied product screen`}
-                />
+          <div className="module-sheet" key="modules">
+            <p className="module-scope">Roles / approvals / shared data</p>
+            <div
+              className="module-grid"
+              tabIndex={0}
+              role="region"
+              aria-label="Module screen sequence"
+            >
+              {MODULE_CROPS.map((crop) => (
+                <div className="module-screen" key={crop.name}>
+                  <SourceCrop
+                    url={image}
+                    box={crop.box}
+                    label={`${crop.name} module — crop of the supplied product screen`}
+                  />
+                </div>
+              ))}
+              <div className="module-system-note">
+                <span className="folio-label">Cross-module work</span>
+                <p>
+                  Requirements
+                  <br />
+                  Handoffs
+                  <br />
+                  Validation
+                </p>
+                <span>Across five modules</span>
               </div>
-            ))}
+            </div>
           </div>
         ) : image ? (
           <div
@@ -171,7 +177,7 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
           {behind
             ? "Product and delivery workflow"
             : modules
-              ? "Anonymized source screen · recomposed for this portfolio"
+              ? "Anonymized source screen · individual module crops"
               : caption}
         </span>
         {image ? <EvidenceViewer url={image} title={item.title} caption={caption} /> : null}
@@ -184,7 +190,7 @@ export function EvidenceViewer({
   url,
   title,
   caption,
-  label = "View original ↗",
+  label = "View full-size ↗",
 }: {
   url: string;
   title: string;

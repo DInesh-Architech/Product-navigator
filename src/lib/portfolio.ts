@@ -40,6 +40,8 @@ export type CaseStudyDetails = {
   presentation?: "workspace" | "flow" | "map" | "image";
   cover_title?: string;
   cover_summary?: string;
+  cover_owned?: string;
+  cover_decision?: string;
   hero_image_path?: string;
   role_label?: string;
   timeline?: string;
@@ -237,6 +239,19 @@ export function getBuildEvidence(item: IndependentWork): { path: string | null; 
       caption: "Live prototype capture · BuildWise / HI-Quote",
     };
   return { path: null, caption: "" };
+}
+
+/** A concept description alone is not evidence of a working prototype. */
+export function getBuildStage(item: IndependentWork): string {
+  if (
+    item.status.trim().toLowerCase() === "prototype" &&
+    /\bconcept\b/i.test(item.description) &&
+    !item.image_path &&
+    !item.live_url &&
+    !item.repo_url
+  )
+    return "Concept";
+  return item.status;
 }
 
 export function getCaseStudyFallback(slug: string): CaseStudyDetails {

@@ -151,7 +151,12 @@ function CaseStudy({ item, next }: { item: SelectedWork; next: SelectedWork | un
           </div>
         </nav>
 
-        <section className="case-overview folio-wrap case-chapter" id="overview" data-case-section>
+        <section
+          className="case-overview folio-wrap case-chapter"
+          id="overview"
+          data-case-section
+          tabIndex={-1}
+        >
           <div className="case-chapter-title">
             <p className="folio-label">01 / Context & complexity</p>
             <h2>

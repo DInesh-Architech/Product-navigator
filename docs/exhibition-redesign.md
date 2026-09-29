@@ -15,9 +15,9 @@ No results, metrics, clients, dates or production states were inferred from thes
 
 ## Design direction
 
-An editorial project exhibition: paper, dark green ink, a restrained citron accent; different muted environments for interfaces, construction workflows and system maps. Typography carries the identity. Large artifacts replace repeated descriptive project cards.
+An editorial project exhibition: paper, dark green ink, a restrained citron accent; one neutral evidence surface for interfaces, construction workflows and system maps. Typography carries the identity. Large artifacts replace repeated descriptive project cards.
 
-Four interaction patterns: project selection changes the exhibit; “Behind the product” reveals the delivery sequence; case-study workflow steps focus one stage at a time; original artifacts open in a keyboard-accessible inspection dialog with zoom. Native disclosures retain detailed experiment and archive content. There are no autoplay effects or scroll-jacking.
+Four interaction patterns: project selection changes the exhibit; “Behind the product” reveals the delivery sequence; case-study workflow steps focus one stage at a time; original artifacts open in a keyboard-accessible inspection dialog with zoom. Native disclosures retain detailed experiment content; the supporting archive is four visible, consistent rows. There are no autoplay effects or scroll-jacking.
 
 References reviewed: SiteBuilderReport PM portfolios and Best Websites 2026; Webflow Product Management showcase; Omolola Odunowo’s portfolio article; HelloPM’s portfolio guide; Figma’s web design trends; Site of Sites. These informed hierarchy and presentation, not copied components.
 
@@ -27,6 +27,7 @@ Existing title, summary, order, featured/visibility, image path, category, probl
 
 - `presentation`: workspace, flow, map or image; empty uses the project default.
 - `cover_title`, `cover_summary`: concise homepage copy; empty fields use the project title/summary.
+- `cover_owned`, `cover_decision`: homepage proof beside the selected exhibit; empty fields use the existing contribution and first important decision.
 - `hero_image_path`: a separate hero asset; otherwise the main evidence is used.
 - `role_label`, `timeline`, `live_url`: only publish confirmed information.
 - `gallery`: ordered `{ image_path, caption }` entries following the main evidence asset. The editor supports adding, editing, moving and removing entries before saving.
@@ -36,3 +37,13 @@ Existing case-study context, decisions, product workflow, evidence notes, shippe
 ## Verification
 
 TypeScript, targeted ESLint, production build and whitespace checks pass. Visual and runtime QA is performed on Vercel previews before promotion. Responsive QA uses the actual application in narrow browser frames; this validates responsive CSS and interactions, not physical device hardware or mobile browser performance.
+
+## 29 September review refinements
+
+Construction Billing opens by default when featured. The project switcher keeps the saved content order. Each selected project exposes ownership and one key decision beneath the index. The enterprise launcher now uses a flat contact sheet with all five source crops and a separate shared-rules label.
+
+The Lab uses equal visual areas: real prototype screenshots for Real Wealth and HI-Quote; explicitly labeled concept flows for Archy and WAYU. Real Wealth uses a tighter browser crop of the same source file. A concept description with no image, live URL or repository is not labeled as a prototype. Admin fields remain the source of the descriptions and stages. Screenshot placeholders follow real load/error events and reserve space.
+
+The architecture-to-product paragraph is visible. Supporting project records and the healthcare research note are visible rows, with no mismatched hidden-record counter. Display tracking is relaxed and sage/olive text darkened. Keyboard skip links sit within the top navigation area when focused, and target focusable content sections.
+
+Motion is limited to short project/content fades, image opacity reveals and small link-arrow feedback, with reduced-motion overrides. Libraries.dev was reviewed; no effect package or WebGL dependency was added for static portfolio image loading.

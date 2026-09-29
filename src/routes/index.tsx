@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ProjectScene, EvidenceViewer } from "@/components/site/ProjectScene";
+import { LabScreenshot, LabConcept } from "@/components/site/LabVisual";
 import {
   type IndependentWork,
   type SelectedWork,
   type VisualWork,
   getEvidenceFallbackPath,
   getBuildEvidence,
+  getBuildStage,
+  mergeCaseStudy,
   getProjectPresentation,
   useAbout,
   useHealthcareStudy,
@@ -49,10 +52,7 @@ function Portfolio() {
     (item) => !projects.some((project) => project.id === item.id),
   );
   const visibleVisuals = visuals.filter((item) => item.visible);
-  const imageWork = [
-    ...visibleVisuals.filter((item) => item.image_path),
-    ...secondary.filter((item) => item.image_path || getEvidenceFallbackPath(item.slug)),
-  ].slice(0, 6);
+  const imageWork = visibleVisuals.filter((item) => item.image_path);
   const email = settings?.contact_email || "odkspav@gmail.com";
   const journey = about?.transition_copy?.includes("→")
     ? about.transition_copy
@@ -66,6 +66,13 @@ function Portfolio() {
     !savedHeadline || savedHeadline === "I turn ambiguous business needs into buildable products."
       ? "Complexity, made buildable."
       : savedHeadline;
+  const savedProof = settings?.hero_supporting?.trim();
+  const proof =
+    !savedProof ||
+    savedProof ===
+      "Technical Product Manager working across product discovery, workflow design, requirements, UX, QA and delivery for enterprise SaaS and AI-enabled products."
+      ? "Contract defaults. Cross-module approvals. Clinical handoffs."
+      : savedProof;
   const words = headline.split(/\s+/);
   const lastWord = words.length > 2 ? words.pop() : "";
 
@@ -106,14 +113,8 @@ function Portfolio() {
               {words.join(" ")} {lastWord ? <em>{lastWord}</em> : null}
             </h1>
             <div className="hero-margin">
-              <span className="hero-asterisk" aria-hidden="true">
-                ✳
-              </span>
-              <p>
-                Systems thinker.
-                <br />
-                Hands-on builder.
-              </p>
+              <span className="folio-label hero-proof-label">Product work, in practice</span>
+              <p className="hero-proof">{proof}</p>
               <a href="#work" aria-label="Explore selected work">
                 Explore the work <span aria-hidden="true">↓</span>
               </a>
@@ -121,7 +122,12 @@ function Portfolio() {
           </div>
         </section>
 
-        <section id="work" className="folio-wrap exhibition" aria-labelledby="work-heading">
+        <section
+          id="work"
+          className="folio-wrap exhibition"
+          aria-labelledby="work-heading"
+          tabIndex={-1}
+        >
           <div className="exhibition-heading">
             <h2 id="work-heading" className="folio-label">
               01 / Selected work
@@ -243,14 +249,8 @@ function Portfolio() {
                 {about?.intro ||
                   "I work between business intent, user workflows, design and engineering. My focus is making the rules, decisions and handoffs clear enough to build."}
               </p>
-              {about?.transition_copy || settings?.hero_supporting ? (
-                <details className="journey-story">
-                  <summary>
-                    More about my practice <span aria-hidden="true">+</span>
-                  </summary>
-                  {about?.transition_copy ? <p>{about.transition_copy}</p> : null}
-                  {settings?.hero_supporting ? <p>{settings.hero_supporting}</p> : null}
-                </details>
+              {about?.transition_copy ? (
+                <p className="journey-story">{about.transition_copy}</p>
               ) : null}
               <div>
                 {resume?.file_path ? <ResumeLink path={resume.file_path} /> : null}
@@ -282,37 +282,43 @@ function Portfolio() {
               of view.
             </h2>
           </div>
-          <div className="visual-wall">
-            {imageWork.map((item) => (
-              <VisualArtifact item={item} key={item.id} />
-            ))}
-          </div>
-          {secondary.length || healthcare?.visible ? (
-            <details className="archive-drawer">
-              <summary>
-                <span>Open the project archive</span>
-                <span className="folio-label">
-                  {String(secondary.length + (healthcare?.visible ? 1 : 0)).padStart(2, "0")}{" "}
-                  records <b aria-hidden="true">+</b>
+          <div className="exploration-rows">
+            {secondary.map((item, index) => (
+              <Link
+                className="exploration-row"
+                to="/work/$slug"
+                params={{ slug: item.slug }}
+                key={item.id}
+              >
+                <span className="folio-label exploration-number">
+                  {String(index + 1).padStart(2, "0")}
                 </span>
-              </summary>
-              <div className="archive-list">
-                {secondary.map((item) => (
-                  <Link to="/work/$slug" params={{ slug: item.slug }} key={item.id}>
-                    <strong>{item.title}</strong>
-                    <span>{item.category}</span>
-                    <span aria-hidden="true">↗</span>
-                  </Link>
-                ))}
-                {healthcare?.visible ? (
-                  <Link to="/healthcare-study">
-                    <strong>{healthcare.title}</strong>
-                    <span>Research note</span>
-                    <span aria-hidden="true">↗</span>
-                  </Link>
-                ) : null}
-              </div>
-            </details>
+                <strong>{item.title}</strong>
+                <span className="folio-label exploration-category">{item.category}</span>
+                <span className="exploration-arrow" aria-hidden="true">
+                  ↗
+                </span>
+              </Link>
+            ))}
+            {healthcare?.visible ? (
+              <Link className="exploration-row" to="/healthcare-study">
+                <span className="folio-label exploration-number">
+                  {String(secondary.length + 1).padStart(2, "0")}
+                </span>
+                <strong>{healthcare.title}</strong>
+                <span className="folio-label exploration-category">Research note</span>
+                <span className="exploration-arrow" aria-hidden="true">
+                  ↗
+                </span>
+              </Link>
+            ) : null}
+          </div>
+          {imageWork.length ? (
+            <div className="visual-wall">
+              {imageWork.map((item) => (
+                <VisualArtifact item={item} key={item.id} />
+              ))}
+            </div>
           ) : null}
           {visibleVisuals.some((item) => !item.image_path) ? (
             <div className="other-visuals">
@@ -339,7 +345,9 @@ function Portfolio() {
               <span className="folio-label">Product roles & collaborations</span>
             </div>
             <h2>
-              What’s next<span>?</span>
+              <span className="contact-title">
+                What’s next<span>?</span>
+              </span>
               <a href={`mailto:${email}`} aria-label={`Email ${email}`}>
                 ↗
               </a>
@@ -378,39 +386,59 @@ function Portfolio() {
 }
 
 function ProjectExhibition({ projects }: { projects: SelectedWork[] }) {
-  const [selected, setSelected] = useState<string>(projects[0]?.id || "");
+  const [selected, setSelected] = useState<string>(
+    () =>
+      (
+        projects.find((item) => /construction-billing|construction-progress/.test(item.slug)) ||
+        projects[0]
+      )?.id || "",
+  );
   const active = projects.find((item) => item.id === selected) || projects[0];
   if (!active) return null;
+  const details = mergeCaseStudy(active.slug, active.case_study);
+  const owned = details.cover_owned || active.contribution;
+  const decision = details.cover_decision || details.decisions?.[0];
   return (
     <div className={`project-exhibition exhibition-${getProjectPresentation(active)}`}>
-      <div className="project-index" aria-label="Choose a project to preview">
-        {projects.map((item, index) => (
-          <button
-            type="button"
-            key={item.id}
-            aria-pressed={item.id === active.id}
-            aria-controls="project-preview"
-            onClick={() => setSelected(item.id)}
-            onPointerEnter={(event) => {
-              if (event.pointerType === "mouse") setSelected(item.id);
-            }}
-            onFocus={() => setSelected(item.id)}
-          >
-            <span className="index-number">{String(index + 1).padStart(2, "0")}</span>
-            <span>
-              <small>{item.category}</small>
-              <strong>{item.case_study?.cover_title || item.title}</strong>
-            </span>
-            <span className="index-arrow" aria-hidden="true">
-              ↗
-            </span>
-          </button>
-        ))}
-        <p className="index-note">
-          Choose a project.
-          <br />
-          Look under the surface.
-        </p>
+      <div className="project-sidebar">
+        <div className="project-index" aria-label="Choose a project to preview">
+          {projects.map((item, index) => (
+            <button
+              type="button"
+              key={item.id}
+              aria-pressed={item.id === active.id}
+              aria-controls="project-preview"
+              onClick={() => setSelected(item.id)}
+              onPointerEnter={(event) => {
+                if (event.pointerType === "mouse") setSelected(item.id);
+              }}
+              onFocus={() => setSelected(item.id)}
+            >
+              <span className="index-number">{String(index + 1).padStart(2, "0")}</span>
+              <span>
+                <small>{item.category}</small>
+                <strong>{item.case_study?.cover_title || item.title}</strong>
+              </span>
+              <span className="index-arrow" aria-hidden="true">
+                ↗
+              </span>
+            </button>
+          ))}
+        </div>
+        <dl className="project-proof" key={active.id}>
+          {owned ? (
+            <div>
+              <dt className="folio-label">Owned</dt>
+              <dd>{owned}</dd>
+            </div>
+          ) : null}
+          {decision ? (
+            <div>
+              <dt className="folio-label">Key decision</dt>
+              <dd>{decision}</dd>
+            </div>
+          ) : null}
+        </dl>
       </div>
       <div className="project-preview" id="project-preview">
         <ProjectScene key={active.id} item={active} compact />
@@ -434,13 +462,12 @@ function LabProject({ item, index }: { item: IndependentWork; index: number }) {
   const evidence = getBuildEvidence(item);
   const image = useMediaUrl(evidence.path);
   const link = item.live_url || item.repo_url;
+  const crop = evidence.path === "/evidence/real-wealth-live.webp";
   return (
-    <article
-      className={`lab-project ${evidence.path ? "lab-project--visual" : "lab-project--concept"}`}
-    >
+    <article className="lab-study">
       <div className="lab-project-meta">
         <span className="folio-label">Experiment {String(index + 1).padStart(2, "0")}</span>
-        <span className="folio-label">{item.status}</span>
+        <span className="folio-label">{getBuildStage(item)}</span>
       </div>
       <div className="lab-project-title">
         <h3>{item.title}</h3>
@@ -448,49 +475,35 @@ function LabProject({ item, index }: { item: IndependentWork; index: number }) {
           <a href={link} target="_blank" rel="noreferrer" aria-label={`Open ${item.title}`}>
             <span aria-hidden="true">↗</span>
           </a>
-        ) : (
-          <span className="concept-mark" aria-hidden="true">
-            ↳
-          </span>
-        )}
+        ) : null}
       </div>
-      {image ? (
-        <figure className="lab-image">
-          <a
+      <figure className="lab-evidence">
+        {evidence.path ? (
+          <LabScreenshot
+            key={evidence.path}
+            image={image}
+            title={item.title}
             href={link || image}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`View ${item.title}`}
-          >
-            <img
-              src={image}
-              alt={`${item.title} — actual prototype interface`}
-              loading="lazy"
-              width="1363"
-              height="936"
-            />
-          </a>
-          <figcaption>{evidence.caption}</figcaption>
-        </figure>
-      ) : null}
-      {image ? (
-        <details className="lab-details">
-          <summary>
-            Inside the experiment <span aria-hidden="true">+</span>
-          </summary>
-          <p>{item.description}</p>
-          {item.capabilities?.length ? (
-            <p className="lab-capabilities">{item.capabilities.join(" / ")}</p>
-          ) : null}
-        </details>
-      ) : (
-        <div className="lab-concept-copy">
-          <p>{item.description}</p>
-          {item.capabilities?.length ? (
-            <p className="lab-capabilities">{item.capabilities.join(" / ")}</p>
-          ) : null}
-        </div>
-      )}
+            crop={crop}
+          />
+        ) : (
+          <LabConcept item={item} />
+        )}
+        <figcaption>
+          {evidence.path
+            ? `${evidence.caption}${crop ? " · Detail crop" : ""}`
+            : "Concept flow · Not a product screenshot"}
+        </figcaption>
+      </figure>
+      <details className="lab-details">
+        <summary>
+          Inside the experiment <span aria-hidden="true">+</span>
+        </summary>
+        <p>{item.description}</p>
+        {item.capabilities?.length ? (
+          <p className="lab-capabilities">{item.capabilities.join(" / ")}</p>
+        ) : null}
+      </details>
     </article>
   );
 }
