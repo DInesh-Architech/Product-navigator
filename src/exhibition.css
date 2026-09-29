@@ -758,6 +758,36 @@
   display: flex;
   gap: 28px;
 }
+.journey-portrait {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  align-self: start;
+  width: min(100%, 280px);
+  margin: 0;
+}
+.journey-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center 30%;
+  background: #d5d9c9;
+}
+.journey-portrait figcaption {
+  display: grid;
+  gap: 6px;
+  padding-top: 14px;
+}
+.journey-portrait figcaption strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+.journey-portrait figcaption span {
+  color: #465337;
+  font-size: 8px;
+  line-height: 1.6;
+}
 .archive-section {
   padding-block: 88px;
 }
@@ -1909,6 +1939,9 @@
   }
   .journey-bottom {
     display: block;
+  }
+  .journey-portrait {
+    margin-bottom: 28px;
   }
   .journey-bottom > p {
     font-size: 14px;

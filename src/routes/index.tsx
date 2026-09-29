@@ -243,6 +243,7 @@ function Portfolio() {
               ))}
             </div>
             <div className="journey-bottom">
+              <AboutPortrait key={about?.portrait_path} path={about?.portrait_path} />
               <p>
                 {about?.intro ||
                   "I work between business intent, user workflows, design and engineering. My focus is making the rules, decisions and handoffs clear enough to build."}
@@ -380,6 +381,31 @@ function Portfolio() {
         </div>
       </footer>
     </div>
+  );
+}
+
+function AboutPortrait({ path }: { path: string | null | undefined }) {
+  const image = useMediaUrl(path);
+  const [failed, setFailed] = useState(false);
+
+  if (!image || failed) return null;
+
+  return (
+    <figure className="journey-portrait">
+      <img
+        src={image}
+        alt="Portrait of Dinesh Kumar"
+        width={640}
+        height={800}
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailed(true)}
+      />
+      <figcaption>
+        <strong>Dinesh Kumar</strong>
+        <span className="folio-label">Product Manager × Product Builder</span>
+      </figcaption>
+    </figure>
   );
 }
 

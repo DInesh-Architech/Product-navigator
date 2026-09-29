@@ -65,7 +65,7 @@ const FIELD_SPECS: Record<
     {
       key: "portrait_path",
       label: "Portrait image path",
-      help: "Upload an image below or paste a public path.",
+      help: "Shown beside your introduction in About & Journey. Upload a portrait below or paste a public image URL; a 4:5 portrait works best.",
     },
   ],
   work: [
