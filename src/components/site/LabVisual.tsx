@@ -70,7 +70,7 @@ export function LabConcept({ item }: { item: IndependentWork }) {
   const archy = /^archy$/i.test(item.title.trim());
   const wayu = /^wa+yu$/i.test(item.title.trim());
   const steps = archy
-    ? ["Research", "Planning", "Documentation"]
+    ? ["Research", "Plan", "Document"]
     : wayu
       ? ["Message / URL", "Check evidence", "Finding + sources"]
       : item.capabilities.slice(0, 3);

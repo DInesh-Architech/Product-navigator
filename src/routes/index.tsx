@@ -174,13 +174,7 @@ function Portfolio() {
                 <br />
                 <em>making.</em>
               </h2>
-              <p>
-                Independent ideas.
-                <br />
-                Working prototypes.
-                <br />
-                Questions worth exploring.
-              </p>
+              <p>Independent ideas. Working prototypes. Questions worth exploring.</p>
             </div>
             <div className="lab-grid">
               {builds
