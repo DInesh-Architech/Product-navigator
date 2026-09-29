@@ -5,6 +5,8 @@ import type { Database } from "@/integrations/supabase/types";
 
 type PortfolioTable = keyof Database["public"]["Tables"];
 
+export const DEFAULT_PORTRAIT_PATH = "/images/dinesh-kumar.png";
+
 export type SiteSettings = {
   id: string;
   hero_headline: string;

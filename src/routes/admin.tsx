@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { getMediaUrl } from "@/lib/portfolio";
+import { DEFAULT_PORTRAIT_PATH, getMediaUrl } from "@/lib/portfolio";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { claimAdmin } from "@/lib/admin.functions";
@@ -65,7 +65,7 @@ const FIELD_SPECS: Record<
     {
       key: "portrait_path",
       label: "Portrait image path",
-      help: "Shown beside your introduction in About & Journey. Upload a portrait below or paste a public image URL; a 4:5 portrait works best.",
+      help: "Shown beside your introduction in About & Journey. Upload a replacement below or paste an image URL. A square image works best. Clear this field and save to hide the photo.",
     },
   ],
   work: [
@@ -317,7 +317,16 @@ function AdminPage() {
   useEffect(() => {
     const next = rows[activeTab].find((row) => row.id === selectedId) ?? rows[activeTab][0] ?? null;
     if ((next?.id ?? "") !== selectedId) setSelectedId(next?.id ?? "");
-    setForm(next ? { ...next } : null);
+    setForm(
+      next
+        ? {
+            ...next,
+            ...(activeTab === "about"
+              ? { portrait_path: next["portrait_path"] ?? DEFAULT_PORTRAIT_PATH }
+              : {}),
+          }
+        : null,
+    );
   }, [activeTab, rows, selectedId]);
 
   async function requestSignInLink(event?: React.FormEvent<HTMLFormElement>) {
@@ -457,7 +466,7 @@ function AdminPage() {
         seo_description: "",
       };
     else if (activeTab === "about")
-      draft = { id, intro: "", transition_copy: "", portrait_path: null };
+      draft = { id, intro: "", transition_copy: "", portrait_path: DEFAULT_PORTRAIT_PATH };
     else if (activeTab === "work")
       draft = {
         id,

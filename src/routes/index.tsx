@@ -6,6 +6,7 @@ import {
   type IndependentWork,
   type SelectedWork,
   type VisualWork,
+  DEFAULT_PORTRAIT_PATH,
   getEvidenceFallbackPath,
   getBuildEvidence,
   getBuildStage,
@@ -243,7 +244,10 @@ function Portfolio() {
               ))}
             </div>
             <div className="journey-bottom">
-              <AboutPortrait key={about?.portrait_path} path={about?.portrait_path} />
+              <AboutPortrait
+                key={about?.portrait_path ?? DEFAULT_PORTRAIT_PATH}
+                path={about?.portrait_path ?? DEFAULT_PORTRAIT_PATH}
+              />
               <p>
                 {about?.intro ||
                   "I work between business intent, user workflows, design and engineering. My focus is making the rules, decisions and handoffs clear enough to build."}
@@ -395,8 +399,8 @@ function AboutPortrait({ path }: { path: string | null | undefined }) {
       <img
         src={image}
         alt="Portrait of Dinesh Kumar"
-        width={640}
-        height={800}
+        width={400}
+        height={400}
         loading="lazy"
         decoding="async"
         onError={() => setFailed(true)}
