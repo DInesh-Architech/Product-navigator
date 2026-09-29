@@ -40,7 +40,7 @@ TypeScript, targeted ESLint, production build and whitespace checks pass. Visual
 
 ## 29 September review refinements
 
-Construction Billing opens by default when featured. The project switcher keeps the saved content order. Each selected project exposes ownership and one key decision beneath the index. The enterprise launcher now uses a flat contact sheet with all five source crops and a separate shared-rules label.
+Construction Billing opens by default when featured. Construction leads the project index; the other featured projects retain their saved order. Each selected project exposes ownership and one key decision beneath the index. The enterprise launcher now uses a flat contact sheet with all five source crops and a separate shared-rules label.
 
 The Lab uses equal visual areas: real prototype screenshots for Real Wealth and HI-Quote; explicitly labeled concept flows for Archy and WAYU. Real Wealth uses a tighter browser crop of the same source file. A concept description with no image, live URL or repository is not labeled as a prototype. Admin fields remain the source of the descriptions and stages. Screenshot placeholders follow real load/error events and reserve space.
 

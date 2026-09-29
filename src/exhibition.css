@@ -50,7 +50,6 @@
   width: max-content;
   max-width: calc(100% - 32px);
   transform: translate(-50%, -200%);
-  visibility: hidden;
   padding: 10px 18px;
   border: 1px solid var(--paper);
   background: var(--ink);
@@ -59,7 +58,6 @@
 }
 .skip-link:focus {
   transform: translate(-50%, 0);
-  visibility: visible;
 }
 .exhibit-nav {
   border-bottom: 1px solid var(--line);
@@ -2639,7 +2637,7 @@
   opacity: 1;
 }
 .lab-image-window img.lab-preview-crop {
-  transform: scale(1.75);
+  transform: scale(1.55);
   object-position: center 58%;
 }
 .lab-image-skeleton {
@@ -2774,11 +2772,11 @@
   letter-spacing: -0.025em;
   line-height: 1;
 }
-.folio-contact h2 .contact-title {
+.folio-contact h2 .folio-contact-text {
   color: var(--ink);
   white-space: nowrap;
 }
-.contact-title > span {
+.folio-contact-text > span {
   color: #4c612b;
 }
 .folio-contact h2 a:hover {
@@ -2942,5 +2940,14 @@
   .exploration-arrow,
   .lab-project-title > a {
     transition: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .scene-flow .scene-canvas {
+    height: 390px;
+  }
+  .source-crop-scroll {
+    overflow-y: hidden;
   }
 }

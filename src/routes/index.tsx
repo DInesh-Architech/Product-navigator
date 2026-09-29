@@ -47,7 +47,11 @@ function Portfolio() {
   const { data: builds = [] } = useIndependentWork();
   const { data: visuals = [] } = useVisualWork();
   const visibleWork = (workQuery.data ?? []).filter((item) => item.visible);
-  const projects = visibleWork.filter((item) => item.featured).slice(0, 5);
+  const featured = visibleWork.filter((item) => item.featured);
+  const projects = [
+    ...featured.filter((item) => /construction-billing|construction-progress/.test(item.slug)),
+    ...featured.filter((item) => !/construction-billing|construction-progress/.test(item.slug)),
+  ].slice(0, 5);
   const secondary = visibleWork.filter(
     (item) => !projects.some((project) => project.id === item.id),
   );
@@ -345,7 +349,7 @@ function Portfolio() {
               <span className="folio-label">Product roles & collaborations</span>
             </div>
             <h2>
-              <span className="contact-title">
+              <span className="folio-contact-text">
                 What’s next<span>?</span>
               </span>
               <a href={`mailto:${email}`} aria-label={`Email ${email}`}>
