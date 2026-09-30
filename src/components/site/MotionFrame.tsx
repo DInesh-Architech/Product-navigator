@@ -73,7 +73,8 @@ export function MotionFrame({
           --beam-inner-opacity: 0.2;
           --beam-bloom-opacity: 0.6;
         }
-        [data-beam="{id}"]::after {
+        [data-beam="{id}"][data-active]::after,
+        [data-beam="{id}"][data-fading]::after {
           padding: 2px;
           background: conic-gradient(
             from var(--beam-angle-{id}),
