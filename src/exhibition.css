@@ -1,10 +1,12 @@
 /* Product exhibition — one neutral surface, evidence-led composition. */
 .exhibit-site {
-  --paper: #f5f3ec;
-  --ink: #1c2721;
-  --muted: #626a63;
-  --line: #cdd0c4;
-  --accent: #d9ed79;
+  --paper: #faf9f3;
+  --ink: #182d22;
+  --muted: #536257;
+  --line: #cbd2c6;
+  --accent: #d5ed67;
+  --forest: #315c42;
+  --evidence: #eef0e8;
   color: var(--ink);
   background: var(--paper);
   overflow: clip;
@@ -134,7 +136,7 @@
 }
 .hero-type em {
   font: inherit;
-  color: #536435;
+  color: var(--forest);
 }
 .hero-type--long {
   font-size: clamp(2.9rem, 5.6vw, 5.8rem);
@@ -147,7 +149,7 @@
   font-size: 57px;
   line-height: 0.9;
   margin-bottom: 22px;
-  color: #536435;
+  color: var(--forest);
 }
 .hero-margin p {
   font-size: 13px;
@@ -303,19 +305,19 @@
 
 /* Evidence maps and source artifacts share one quiet surface. */
 .project-scene {
-  --scene-paper: #e7e6dd;
+  --scene-paper: var(--evidence);
   position: relative;
   background: var(--scene-paper);
   color: #28342b;
 }
 .scene-flow {
-  --scene-paper: #e7e6dd;
+  --scene-paper: var(--evidence);
 }
 .scene-map {
-  --scene-paper: #e7e6dd;
+  --scene-paper: var(--evidence);
 }
 .scene-image {
-  --scene-paper: #e7e6dd;
+  --scene-paper: var(--evidence);
 }
 .scene-toolbar {
   min-height: 54px;
@@ -480,7 +482,7 @@
 
 /* Independent work: a loose lab ledger, with actual prototype captures. */
 .lab-section {
-  background: #1d2b24;
+  background: #142d23;
   color: #f3f3e9;
   padding: 80px 0 95px;
 }
@@ -677,7 +679,7 @@
   margin: 11px 0 0;
 }
 .journey-section {
-  background: #e7e9dc;
+  background: #eaf0e3;
   padding-block: 78px 70px;
 }
 /* Portrait and story lead; the timeline supports them. */
@@ -696,7 +698,7 @@
 }
 .about-story h2 em {
   font: inherit;
-  color: #465337;
+  color: #31563c;
 }
 .about-story > p {
   max-width: 62ch;
@@ -753,7 +755,7 @@
   width: 9px;
   border-radius: 50%;
   border: 1px solid #52603f;
-  background: #e7e9dc;
+  background: #eaf0e3;
 }
 .journey-stop:last-child .journey-node {
   background: #52603f;
@@ -794,7 +796,7 @@
   font-weight: 500;
 }
 .journey-portrait figcaption span {
-  color: #465337;
+  color: #31563c;
   font-size: 8px;
   line-height: 1.6;
 }
@@ -923,7 +925,7 @@
   font-size: 20px;
 }
 .archive-list a:hover {
-  color: #536435;
+  color: var(--forest);
 }
 .other-visuals {
   display: flex;
@@ -2589,7 +2591,7 @@
   position: relative;
   overflow: hidden;
   aspect-ratio: 1.6;
-  background: #e7e6dd;
+  background: var(--evidence);
   color: #28342b;
 }
 .lab-image-window img {
@@ -2675,7 +2677,7 @@
   right: -14px;
   top: -11px;
   font-size: 17px;
-  background: #e7e6dd;
+  background: var(--evidence);
   padding-left: 3px;
 }
 .concept-principle {
@@ -2686,7 +2688,7 @@
   border-top: 1px solid #c0c5b6;
 }
 .concept-principle > span {
-  color: #536435;
+  color: var(--forest);
   font-size: 24px;
 }
 .concept-principle p {
@@ -2722,7 +2724,7 @@
   transition: transform 180ms ease;
 }
 .exploration-row:hover {
-  color: #536435;
+  color: var(--forest);
 }
 .exploration-row:hover .exploration-arrow {
   transform: translate(2px, -2px);
@@ -2936,7 +2938,7 @@
 .exhibit-site .evidence-trigger:hover,
 .exhibit-site .nav-talk:hover {
   background: #dbe0ce;
-  border-color: #536435;
+  border-color: var(--forest);
 }
 .exhibit-site .scene-toggle,
 .exhibit-site .evidence-trigger {
@@ -2962,13 +2964,13 @@
 }
 .project-index > button:hover {
   color: var(--ink);
-  background: #e9eadf;
+  background: #eef2e5;
 }
 .project-index > button[aria-pressed="true"] {
-  background: #eceee1;
+  background: #e4edce;
 }
 .project-index > button[aria-pressed="true"] .index-arrow {
-  color: #536435;
+  color: var(--forest);
 }
 .scene-footer > span {
   flex: 1;
@@ -3154,41 +3156,149 @@
   }
 }
 
-/* A single edge reveal, inspired by Libraries.dev's monochrome border motion. */
-.exhibit-site .folio-button {
-  position: relative;
+/* A clearer separation between paper, evidence, and action. */
+.hero-type em {
+  box-shadow: inset 0 -0.085em 0 var(--accent);
 }
-.exhibit-site .folio-button::after {
-  content: "";
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 3px;
-  height: 2px;
+.hero-margin .hero-proof {
+  color: #384f40;
+}
+.project-scene {
+  border: 1px solid #becab8;
+}
+.scene-toolbar,
+.scene-footer {
+  background: #fafbf6;
+}
+.scene-footer {
+  color: #405344;
+}
+.scene-toolbar .folio-label {
+  color: #405344;
+}
+.project-index > button[aria-pressed="true"]::before {
+  background: #496e3e;
+}
+.project-index > button[aria-pressed="true"] .index-number {
+  color: #31563c;
+}
+.exhibit-site .folio-button--accent {
   background: var(--accent);
-  pointer-events: none;
-  opacity: 0;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition:
-    transform 320ms cubic-bezier(0.2, 0.7, 0.25, 1),
-    opacity 160ms ease;
+  color: var(--ink);
+  border-color: #687c3e;
+  font-weight: 600;
 }
-.exhibit-site .folio-button--outline::after {
-  background: #536435;
+.exhibit-site .folio-button--accent:hover {
+  background: #e1f28e;
+  color: var(--ink);
+  border-color: #31563c;
 }
-.exhibit-site .folio-button:focus-visible::after {
-  opacity: 1;
-  transform: scaleX(1);
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 12px;
 }
-@media (hover: hover) {
-  .exhibit-site .folio-button:hover::after {
-    opacity: 1;
-    transform: scaleX(1);
+.motion-frame {
+  min-width: 0;
+  isolation: isolate;
+}
+.motion-frame--panel {
+  width: 100%;
+}
+.motion-frame--action {
+  display: inline-block;
+  width: max-content;
+  max-width: 100%;
+}
+.motion-frame--action > .folio-button {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+}
+.motion-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  border: 0;
+  background: transparent;
+  min-height: 44px;
+  padding: 8px 2px;
+  font: 400 11px/1.4 var(--sans);
+  color: #536257;
+}
+.motion-control:hover {
+  color: var(--ink);
+}
+.motion-control:disabled {
+  cursor: default;
+}
+.motion-control > span {
+  font-size: 13px;
+}
+.lab-section .lab-project-meta .folio-label {
+  color: #cbd6c7;
+}
+.lab-study {
+  border-top-color: #738771;
+}
+.lab-concept-model {
+  background: #f2f4e9;
+}
+.concept-sequence {
+  gap: 22px;
+}
+.concept-sequence li {
+  border-top: 2px solid #739262;
+  padding-top: 16px;
+}
+.concept-step-number {
+  font: 500 clamp(26px, 3vw, 42px)/1 var(--display);
+  letter-spacing: -0.04em;
+  color: #4a6d43;
+}
+.concept-sequence strong {
+  margin-top: 13px;
+  font-weight: 600;
+  color: #182d22;
+}
+.concept-connector {
+  background: #f2f4e9;
+  color: #31563c;
+}
+.concept-principle {
+  border-color: #a5b599;
+}
+.concept-principle p {
+  color: #384f40;
+}
+.journey-section {
+  border-block: 1px solid #cbd7be;
+}
+.journey-portrait img {
+  border: 1px solid #c5cebb;
+}
+.folio-contact {
+  background: #d5ed67;
+}
+.folio-contact-text > span {
+  color: #31563c;
+}
+@media (max-width: 700px) {
+  .hero-actions {
+    column-gap: 14px;
   }
-}
-@media (prefers-reduced-motion: reduce) {
-  .exhibit-site .folio-button::after {
-    transition: none;
+  .hero-actions .motion-control {
+    font-size: 10px;
+  }
+  .concept-step-number {
+    font-size: 29px;
+  }
+  .concept-sequence {
+    gap: 14px;
+  }
+  .concept-sequence strong {
+    font-size: 16px;
   }
 }

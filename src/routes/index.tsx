@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ProjectScene, EvidenceViewer } from "@/components/site/ProjectScene";
 import { LabScreenshot, LabConcept } from "@/components/site/LabVisual";
+import { MotionFrame, MotionControl } from "@/components/site/MotionFrame";
 import {
   type IndependentWork,
   type SelectedWork,
@@ -120,9 +121,18 @@ function Portfolio() {
             <div className="hero-margin">
               <span className="folio-label hero-proof-label">Product work, in practice</span>
               <p className="hero-proof">{proof}</p>
-              <a className="folio-button" href="#work" aria-label="Explore selected work">
-                Explore the work <span aria-hidden="true">↓</span>
-              </a>
+              <div className="hero-actions">
+                <MotionFrame variant="action">
+                  <a
+                    className="folio-button folio-button--accent"
+                    href="#work"
+                    aria-label="Explore selected work"
+                  >
+                    Explore the work <span aria-hidden="true">↓</span>
+                  </a>
+                </MotionFrame>
+                <MotionControl />
+              </div>
             </div>
           </div>
         </section>
@@ -476,13 +486,15 @@ function ProjectExhibition({ projects }: { projects: SelectedWork[] }) {
           <Link
             to="/work/$slug"
             params={{ slug: active.slug }}
-            className="case-entry folio-button"
+            className="case-entry folio-button folio-button--accent"
             aria-label={`Read case study: ${active.title}`}
           >
             Read case study <span aria-hidden="true">↗</span>
           </Link>
         </div>
-        <ProjectScene key={active.id} item={active} compact />
+        <MotionFrame key={active.id}>
+          <ProjectScene item={active} compact />
+        </MotionFrame>
       </div>
     </div>
   );
