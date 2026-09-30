@@ -64,7 +64,7 @@ function Portfolio() {
         .split("→")
         .map((s) => s.trim())
         .filter(Boolean)
-    : ["Architecture", "Systems thinking", "Digital products", "Product delivery"];
+    : ["Architecture", "Design leadership", "Digital products", "Product delivery"];
   if (!journey.some((step) => /AI|building/i.test(step))) journey.push("AI product building");
   const savedHeadline = settings?.hero_headline?.trim();
   const headline =
@@ -120,7 +120,7 @@ function Portfolio() {
             <div className="hero-margin">
               <span className="folio-label hero-proof-label">Product work, in practice</span>
               <p className="hero-proof">{proof}</p>
-              <a href="#work" aria-label="Explore selected work">
+              <a className="folio-button" href="#work" aria-label="Explore selected work">
                 Explore the work <span aria-hidden="true">↓</span>
               </a>
             </div>
@@ -137,7 +137,7 @@ function Portfolio() {
             <h2 id="work-heading" className="folio-label">
               01 / Selected work
             </h2>
-            <span className="folio-label">Interfaces. Workflows. Decisions.</span>
+            <span className="folio-label">Select a project to explore ↓</span>
           </div>
           {projects.length ? (
             <ProjectExhibition projects={projects} />
@@ -216,21 +216,50 @@ function Portfolio() {
 
         <section className="journey-section" id="about" aria-labelledby="about-heading">
           <div className="folio-wrap">
-            <div className="journey-heading">
-              <p className="folio-label">04 / About & journey</p>
-              <h2 id="about-heading">
-                Different materials.
-                <br />
-                <em>The same systems mind.</em>
-              </h2>
+            <p className="folio-label">04 / About & journey</p>
+            <div className="about-layout">
+              <AboutPortrait
+                key={about?.portrait_path ?? DEFAULT_PORTRAIT_PATH}
+                path={about?.portrait_path ?? DEFAULT_PORTRAIT_PATH}
+              />
+              <div className="about-story">
+                <h2 id="about-heading">
+                  From architecture
+                  <br />
+                  <em>to product.</em>
+                </h2>
+                <p className="about-intro">
+                  {about?.intro ||
+                    "I work between business intent, user workflows, design and engineering. My focus is making the rules, decisions and handoffs clear enough to build."}
+                </p>
+                {about?.transition_copy && !about.transition_copy.includes("→") ? (
+                  <p>{about.transition_copy}</p>
+                ) : null}
+                <div className="about-actions">
+                  <a className="folio-button" href="#contact">
+                    Let’s talk <span aria-hidden="true">↗</span>
+                  </a>
+                  {settings?.linkedin_url ? (
+                    <a
+                      className="folio-button folio-button--outline"
+                      href={settings.linkedin_url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      LinkedIn <span aria-hidden="true">↗</span>
+                    </a>
+                  ) : null}
+                  {resume?.file_path ? <ResumeLink path={resume.file_path} /> : null}
+                </div>
+              </div>
             </div>
-            <div
+            <ol
               className="journey-track"
               style={{ "--journey-count": journey.length } as React.CSSProperties}
               aria-label="Professional evolution"
             >
               {journey.map((step, index) => (
-                <div
+                <li
                   className="journey-stop"
                   style={{ "--step": index } as React.CSSProperties}
                   key={step}
@@ -240,35 +269,9 @@ function Portfolio() {
                     {index === journey.length - 1 ? "Now" : String(index + 1).padStart(2, "0")}
                   </span>
                   <strong>{step}</strong>
-                </div>
+                </li>
               ))}
-            </div>
-            <div className="journey-bottom">
-              <AboutPortrait
-                key={about?.portrait_path ?? DEFAULT_PORTRAIT_PATH}
-                path={about?.portrait_path ?? DEFAULT_PORTRAIT_PATH}
-              />
-              <p>
-                {about?.intro ||
-                  "I work between business intent, user workflows, design and engineering. My focus is making the rules, decisions and handoffs clear enough to build."}
-              </p>
-              {about?.transition_copy ? (
-                <p className="journey-story">{about.transition_copy}</p>
-              ) : null}
-              <div>
-                {resume?.file_path ? <ResumeLink path={resume.file_path} /> : null}
-                {settings?.linkedin_url ? (
-                  <a
-                    className="folio-link"
-                    href={settings.linkedin_url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Connect on LinkedIn ↗
-                  </a>
-                ) : null}
-              </div>
-            </div>
+            </ol>
           </div>
         </section>
 
@@ -356,7 +359,10 @@ function Portfolio() {
               </a>
             </h2>
             <div className="contact-bottom">
-              <a href={`mailto:${email}`}>{email}</a>
+              <a className="contact-email" href={`mailto:${email}`}>
+                <span className="folio-label">Email me ↗</span>
+                {email}
+              </a>
               <p>
                 Let’s turn a complex problem
                 <br />
@@ -437,10 +443,6 @@ function ProjectExhibition({ projects }: { projects: SelectedWork[] }) {
               aria-pressed={item.id === active.id}
               aria-controls="project-preview"
               onClick={() => setSelected(item.id)}
-              onPointerEnter={(event) => {
-                if (event.pointerType === "mouse") setSelected(item.id);
-              }}
-              onFocus={() => setSelected(item.id)}
             >
               <span className="index-number">{String(index + 1).padStart(2, "0")}</span>
               <span>
@@ -448,7 +450,7 @@ function ProjectExhibition({ projects }: { projects: SelectedWork[] }) {
                 <strong>{item.case_study?.cover_title || item.title}</strong>
               </span>
               <span className="index-arrow" aria-hidden="true">
-                ↗
+                →
               </span>
             </button>
           ))}
@@ -469,18 +471,18 @@ function ProjectExhibition({ projects }: { projects: SelectedWork[] }) {
         </dl>
       </div>
       <div className="project-preview" id="project-preview">
-        <ProjectScene key={active.id} item={active} compact />
         <div className="project-preview-bottom">
           <p>{active.case_study?.cover_summary || active.short_description}</p>
           <Link
             to="/work/$slug"
             params={{ slug: active.slug }}
-            className="case-entry"
-            aria-label={`Explore ${active.title}`}
+            className="case-entry folio-button"
+            aria-label={`Read case study: ${active.title}`}
           >
-            Explore the case <span aria-hidden="true">↗</span>
+            Read case study <span aria-hidden="true">↗</span>
           </Link>
         </div>
+        <ProjectScene key={active.id} item={active} compact />
       </div>
     </div>
   );
@@ -501,7 +503,7 @@ function LabProject({ item, index }: { item: IndependentWork; index: number }) {
         <h3>{item.title}</h3>
         {link ? (
           <a href={link} target="_blank" rel="noreferrer" aria-label={`Open ${item.title}`}>
-            <span aria-hidden="true">↗</span>
+            {item.live_url ? "Open project" : "View code"} <span aria-hidden="true">↗</span>
           </a>
         ) : null}
       </div>

@@ -30,6 +30,7 @@
   background: transparent;
   font-size: 13px;
   cursor: pointer;
+  min-height: 44px;
 }
 .exhibit-site a,
 .exhibit-site button {
@@ -300,7 +301,7 @@
   width: 70%;
 }
 
-/* The source screen is split into real interface fragments. */
+/* Evidence maps and source artifacts share one quiet surface. */
 .project-scene {
   --scene-paper: #e7e6dd;
   position: relative;
@@ -679,28 +680,55 @@
   background: #e7e9dc;
   padding-block: 78px 70px;
 }
-.journey-heading {
+/* Portrait and story lead; the timeline supports them. */
+.about-layout {
   display: grid;
-  grid-template-columns: 1fr 2.05fr;
-  gap: 30px;
+  grid-template-columns: minmax(200px, 0.7fr) minmax(0, 1.6fr);
+  gap: clamp(36px, 7vw, 110px);
+  align-items: start;
+  margin-top: 32px;
 }
-.journey-heading h2 {
-  font: 600 clamp(2.8rem, 4.7vw, 5rem)/1 var(--display);
+.about-story h2 {
+  margin: -6px 0 26px;
+  font: 600 clamp(40px, 5vw, 68px)/1.02 var(--display);
   letter-spacing: -0.025em;
-  margin: 0;
+  word-spacing: 0.035em;
 }
-.journey-heading h2 em {
+.about-story h2 em {
   font: inherit;
   color: #465337;
+}
+.about-story > p {
+  max-width: 62ch;
+  margin: 18px 0 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #43513e;
+  text-wrap: pretty;
+}
+.about-story > .about-intro {
+  color: var(--ink);
+  font-size: 17px;
+}
+.about-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+.about-layout:not(:has(.journey-portrait)) {
+  grid-template-columns: 1fr;
 }
 .journey-track {
   display: grid;
   grid-template-columns: repeat(var(--journey-count), minmax(0, 1fr));
-  margin: 65px 0 55px;
+  margin: 52px 0 0;
+  list-style: none;
   padding: 0;
 }
 .journey-stop {
-  margin-top: calc(var(--step) * 24px);
+  margin-top: calc(var(--step) * 14px);
   padding: 21px 18px 0 0;
   border-top: 1px solid #839071;
   position: relative;
@@ -709,7 +737,7 @@
   content: "";
   position: absolute;
   width: 1px;
-  height: 25px;
+  height: 15px;
   top: -1px;
   right: 0;
   background: #839071;
@@ -741,28 +769,10 @@
 .journey-stop .folio-label {
   color: #626d50;
 }
-.journey-bottom {
-  display: grid;
-  grid-template-columns: 1fr 2.05fr;
-  gap: 30px;
-}
-.journey-bottom > p {
-  grid-column: 2;
-  max-width: 62ch;
-  font-size: 16px;
-  line-height: 1.7;
-  margin: 0;
-}
-.journey-bottom > div {
-  grid-column: 2;
-  display: flex;
-  gap: 28px;
-}
 .journey-portrait {
   grid-column: 1;
-  grid-row: 1 / span 3;
   align-self: start;
-  width: min(100%, 280px);
+  width: min(100%, 300px);
   margin: 0;
 }
 .journey-portrait img {
@@ -1900,16 +1910,21 @@
   .journey-section {
     padding-block: 48px;
   }
-  .journey-heading {
+  .about-layout {
     display: block;
+    margin-top: 26px;
   }
-  .journey-heading h2 {
-    font-size: 39px;
-    margin-top: 25px;
+  .about-story h2 {
+    font-size: clamp(36px, 9vw, 48px);
+    margin: 26px 0 20px;
+  }
+  .about-story > p,
+  .about-story > .about-intro {
+    font-size: 15px;
   }
   .journey-track {
     display: block;
-    margin: 35px 0;
+    margin: 38px 0 0;
     padding-left: 8px;
   }
   .journey-stop {
@@ -1930,27 +1945,16 @@
     left: -5px;
   }
   .journey-stop strong {
-    font-size: 24px;
-    margin-top: 6px;
+    font-size: 20px;
+    margin-top: 4px;
     max-width: 26ch;
   }
   .journey-stop .folio-label {
     font-size: 8px;
   }
-  .journey-bottom {
-    display: block;
-  }
   .journey-portrait {
-    margin-bottom: 28px;
-  }
-  .journey-bottom > p {
-    font-size: 14px;
-    line-height: 1.65;
-  }
-  .journey-bottom > div {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    gap: 16px;
+    width: min(68%, 240px);
+    margin: 0;
   }
   .archive-section {
     padding-block: 50px;
@@ -2399,26 +2403,6 @@
     padding: 22px 0 24px;
   }
 }
-.journey-story {
-  grid-column: 2;
-  border-top: 1px solid #aeb7a0;
-}
-.journey-story summary {
-  display: flex;
-  justify-content: space-between;
-  gap: 25px;
-  cursor: pointer;
-  font-size: 12px;
-  padding: 14px 0;
-  list-style: none;
-}
-.journey-story p {
-  font-size: 14px;
-  line-height: 1.7;
-  max-width: 62ch;
-  color: #4e5e4d;
-  margin: 0 0 18px;
-}
 .scene-toggle {
   min-height: 32px;
 }
@@ -2431,9 +2415,6 @@
   }
   .scene-footer .evidence-trigger {
     min-height: 34px;
-  }
-  .journey-story {
-    margin-top: 24px;
   }
 }
 .source-crop-desktop {
@@ -2493,7 +2474,7 @@
 /* Review refinement: restrained movement, clear word spacing, consistent evidence surfaces. */
 .hero-type,
 .lab-heading h2,
-.journey-heading h2,
+.about-story h2,
 .archive-heading h2,
 .folio-contact h2 {
   word-spacing: 0.035em;
@@ -2556,59 +2537,6 @@
     opacity: 1;
     transform: none;
   }
-}
-.module-sheet {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 20px 24px 24px;
-}
-.module-scope {
-  margin: 0;
-  font: 9px/1.5 var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #475448;
-}
-.module-grid {
-  min-height: 0;
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-.module-screen {
-  min-width: 0;
-  min-height: 0;
-  background: #fbfbfd;
-  border: 1px solid #ced0c4;
-}
-.module-screen svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.module-system-note {
-  padding: 12px 14px;
-  border-top: 1px solid #8e9983;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 9px;
-}
-.module-system-note .folio-label {
-  font-size: 8px;
-}
-.module-system-note p {
-  font: 500 clamp(17px, 1.8vw, 26px)/1.1 var(--display);
-  margin: 0;
-  letter-spacing: -0.015em;
-}
-.module-system-note > span:last-child {
-  font: 9px/1.5 var(--mono);
-  color: #52604f;
 }
 .lab-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2759,12 +2687,6 @@
   line-height: 1.5;
   max-width: 32ch;
 }
-.journey-bottom > .journey-story {
-  border: 0;
-  margin: 0;
-  font-size: 16px;
-  color: #374532;
-}
 .exploration-rows {
   border-top: 1px solid var(--line);
 }
@@ -2878,34 +2800,6 @@
   .project-proof dd {
     font-size: 13px;
   }
-  .module-sheet {
-    padding: 20px 0 36px;
-    gap: 16px;
-  }
-  .module-scope {
-    padding-inline: 18px;
-    font-size: 8px;
-  }
-  .module-grid {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: thin;
-    padding: 0 18px 12px;
-    gap: 14px;
-  }
-  .module-screen,
-  .module-system-note {
-    flex: 0 0 86%;
-    min-height: 0;
-    scroll-snap-align: center;
-  }
-  .module-system-note {
-    padding: 20px;
-  }
-  .module-system-note p {
-    font-size: 28px;
-  }
   .lab-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -2935,10 +2829,6 @@
     min-height: 0;
     margin-bottom: 16px;
     font-size: 8px;
-  }
-  .journey-bottom > .journey-story {
-    margin-top: 20px;
-    font-size: 14px;
   }
   .exploration-row {
     grid-template-columns: 20px minmax(0, 1fr) 20px;
@@ -2994,5 +2884,264 @@
     grid-column: 1;
     max-width: 32ch;
     font-size: 12px;
+  }
+}
+
+/* Action hierarchy: primary destinations, secondary controls, quiet captions. */
+.exhibit-site .folio-button,
+.exhibit-site .scene-toggle,
+.exhibit-site .evidence-trigger,
+.exhibit-site .nav-talk {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 44px;
+  padding: 11px 16px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  font: 500 13px/1.4 var(--sans);
+  text-decoration: none;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+.exhibit-site .folio-button {
+  background: var(--ink);
+  color: var(--paper);
+}
+.exhibit-site .folio-button:hover {
+  background: #35462d;
+  border-color: #35462d;
+}
+.exhibit-site .folio-button--outline,
+.exhibit-site .scene-toggle,
+.exhibit-site .evidence-trigger,
+.exhibit-site .nav-talk {
+  background: transparent;
+  color: var(--ink);
+  border-color: #929b89;
+}
+.exhibit-site .folio-button--outline:hover,
+.exhibit-site .scene-toggle:hover,
+.exhibit-site .evidence-trigger:hover,
+.exhibit-site .nav-talk:hover {
+  background: #dbe0ce;
+  border-color: #536435;
+}
+.exhibit-site .scene-toggle,
+.exhibit-site .evidence-trigger {
+  font-size: 12px;
+  padding-inline: 13px;
+}
+.nav-talk span,
+.case-entry span {
+  margin: 0;
+  padding: 0;
+}
+.project-preview-bottom {
+  padding: 0 0 18px;
+  align-items: center;
+  gap: 24px;
+}
+.project-preview-bottom .case-entry {
+  width: auto;
+}
+.index-arrow {
+  opacity: 0.55;
+  transform: none;
+}
+.project-index > button:hover {
+  color: var(--ink);
+  background: #e9eadf;
+}
+.project-index > button[aria-pressed="true"] {
+  background: #eceee1;
+}
+.project-index > button[aria-pressed="true"] .index-arrow {
+  color: #536435;
+}
+.scene-footer > span {
+  flex: 1;
+  max-width: 65%;
+}
+.scene-footer .evidence-trigger {
+  flex-shrink: 0;
+}
+.lab-project-title > a {
+  display: inline-flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: auto;
+  min-height: 44px;
+  height: auto;
+  padding: 10px 12px;
+  border-radius: 2px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--paper);
+  border-color: #8b9a82;
+}
+.lab-project-title > a > span {
+  font-size: 18px;
+}
+.lab-details summary {
+  min-height: 48px;
+  font-size: 13px;
+}
+.lab-details summary span {
+  font-size: 21px;
+  transition: transform 160ms ease;
+}
+.lab-details summary:hover {
+  color: var(--accent);
+}
+.contact-bottom .contact-email {
+  display: grid;
+  gap: 8px;
+}
+.contact-email .folio-label {
+  color: #35462d;
+  font-size: 11px;
+}
+.case-contents a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+@media (max-width: 1000px) and (min-width: 701px) {
+  .project-index {
+    overflow: visible;
+  }
+  .project-index > button {
+    min-width: 0;
+    flex: 1;
+    padding-left: 12px;
+  }
+  .project-index > button[aria-pressed="true"] {
+    padding-left: 12px;
+  }
+  .about-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 36px;
+  }
+}
+@media (max-width: 700px) {
+  .exhibit-brand strong {
+    display: none;
+  }
+  .exhibit-nav nav {
+    margin-left: auto;
+    gap: 14px;
+  }
+  .exhibit-site .nav-talk {
+    display: inline-flex;
+    margin-left: 0;
+    padding: 9px 10px;
+    gap: 8px;
+    font-size: 11px;
+  }
+  .exhibit-nav-inner {
+    gap: 16px;
+  }
+  .hero-margin {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .hero-margin .hero-proof {
+    max-width: 40ch;
+    font-size: 12px;
+  }
+  .hero-margin .folio-button {
+    width: auto;
+    min-width: 180px;
+  }
+  .project-index {
+    flex-direction: column;
+    overflow: visible;
+    gap: 0;
+    padding-bottom: 18px;
+  }
+  .project-index > button,
+  .project-index > button:first-child,
+  .project-index > button[aria-pressed="true"] {
+    flex: auto;
+    grid-template-columns: 20px minmax(0, 1fr) 20px;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 14px 12px;
+  }
+  .project-index small {
+    font-size: 8px;
+    margin-bottom: 5px;
+  }
+  .project-index strong {
+    font-size: 20px;
+    line-height: 1.1;
+  }
+  .project-index .index-arrow {
+    display: block;
+    font-size: 20px;
+  }
+  .project-index > button[aria-pressed="true"] {
+    box-shadow: inset 3px 0 #718335;
+  }
+  .project-preview-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .project-preview-bottom .case-entry {
+    align-self: flex-start;
+    min-width: 180px;
+  }
+  .scene-toolbar {
+    gap: 10px;
+  }
+  .exhibit-site .scene-toggle,
+  .exhibit-site .evidence-trigger {
+    font-size: 11px;
+    padding-inline: 10px;
+  }
+  .scene-footer {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .scene-footer > span {
+    flex-basis: 100%;
+    max-width: 100%;
+    font-size: 9px;
+  }
+  .scene-workspace:has(.artifact-canvas--enterprise) .scene-canvas {
+    height: 460px;
+  }
+  .artifact-canvas--enterprise .source-crop-mobile {
+    width: 900px;
+  }
+  .lab-study .lab-project-title {
+    gap: 14px;
+  }
+  .lab-study .lab-project-title h3 {
+    font-size: 28px;
+  }
+  .lab-project-title > a {
+    max-width: 114px;
+    padding-inline: 10px;
+    gap: 10px;
+  }
+  .about-actions {
+    gap: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .exhibit-site .folio-button,
+  .exhibit-site .scene-toggle,
+  .exhibit-site .evidence-trigger,
+  .exhibit-site .nav-talk,
+  .lab-details summary span {
+    transition: none;
   }
 }

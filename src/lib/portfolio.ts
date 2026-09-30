@@ -60,8 +60,8 @@ export type CaseStudyDetails = {
 };
 
 const EVIDENCE_BY_SLUG: Record<string, string> = {
-  "enterprise-workforce-platform": "/evidence/enterprise-operations.webp",
-  "enterprise-operations-suite": "/evidence/enterprise-operations.webp",
+  "enterprise-workforce-platform": "/evidence/enterprise-system.svg",
+  "enterprise-operations-suite": "/evidence/enterprise-system.svg",
   "construction-billing-sov": "/evidence/construction-progress-billing.svg",
   "construction-progress-billing": "/evidence/construction-progress-billing.svg",
   "healthcare-platform-enhancement": "/evidence/provider-current-state.svg",
@@ -89,8 +89,11 @@ const CASE_STUDY_FALLBACKS: Record<string, CaseStudyDetails> = {
       "Handoffs",
       "QA and release readiness",
     ],
-    evidence_caption: "An anonymized module selector from the workforce platform.",
-    evidence_items: ["Module launcher screenshot, cropped to remove account and client details."],
+    evidence_caption:
+      "Reconstructed system and delivery map · Based on documented product work; no client screens or data.",
+    evidence_items: [
+      "System map connecting five product modules, shared rules and the documented delivery workflow.",
+    ],
     shipped: [
       "Requirements and user stories",
       "Acceptance criteria",
@@ -213,10 +216,18 @@ export function getEvidenceFallbackPath(slug: string): string | null {
   return EVIDENCE_BY_SLUG[slug] ?? null;
 }
 
+/** The retired source screen must not reappear through a saved CMS path or gallery. */
+export function isRetiredEvidence(path: string | null | undefined): boolean {
+  return Boolean(path && /(?:^|\/)enterprise-operations\.webp(?:$|[?#])/i.test(path));
+}
+
+export function getProjectEvidencePath(item: SelectedWork, hero = false): string | null {
+  const path = (hero && item.case_study?.hero_image_path) || item.image_path;
+  return path && !isRetiredEvidence(path) ? path : getEvidenceFallbackPath(item.slug);
+}
+
 export function shouldContainEvidence(path: string | null | undefined): boolean {
-  return Boolean(
-    path && (/\.svg(?:$|\?)/i.test(path) || path.endsWith("enterprise-operations.webp")),
-  );
+  return Boolean(path && /\.svg(?:$|\?)/i.test(path));
 }
 
 export function getProjectPresentation(item: SelectedWork): "workspace" | "flow" | "map" | "image" {
@@ -268,7 +279,26 @@ export function getCaseStudyFallback(slug: string): CaseStudyDetails {
 }
 
 export function mergeCaseStudy(slug: string, stored?: CaseStudyDetails | null): CaseStudyDetails {
-  return { ...getCaseStudyFallback(slug), ...(stored ?? {}) };
+  const fallback = getCaseStudyFallback(slug);
+  const details = { ...fallback, ...(stored ?? {}) };
+  if (/enterprise-workforce|enterprise-operations/.test(slug)) {
+    if (
+      fallback.evidence_caption &&
+      /module selector|module launcher|source screen|module crops/i.test(
+        details.evidence_caption || "",
+      )
+    )
+      details.evidence_caption = fallback.evidence_caption;
+    if (details.evidence_items)
+      details.evidence_items = details.evidence_items.map((note) =>
+        /module launcher screenshot|module selector screenshot/i.test(note)
+          ? fallback.evidence_items?.[0] || note
+          : note,
+      );
+  }
+  if (details.gallery)
+    details.gallery = details.gallery.filter((asset) => !isRetiredEvidence(asset.image_path));
+  return details;
 }
 
 export type SelectedWork = {

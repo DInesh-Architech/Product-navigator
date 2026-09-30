@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { EvidenceViewer, ProjectScene, WorkflowExplorer } from "@/components/site/ProjectScene";
 import {
   type SelectedWork,
-  getEvidenceFallbackPath,
+  getProjectEvidencePath,
   getProjectPresentation,
   mergeCaseStudy,
   useSelectedWork,
@@ -75,7 +75,7 @@ function CaseStudy({ item, next }: { item: SelectedWork; next: SelectedWork | un
   const details = mergeCaseStudy(item.slug, item.case_study);
   const presentation = getProjectPresentation(item);
   const steps = details.product_workflow?.length ? details.product_workflow : item.workflow;
-  const mainPath = item.image_path || getEvidenceFallbackPath(item.slug);
+  const mainPath = getProjectEvidencePath(item);
   const gallery = [
     ...(mainPath
       ? [
@@ -85,7 +85,9 @@ function CaseStudy({ item, next }: { item: SelectedWork; next: SelectedWork | un
           },
         ]
       : []),
-    ...(details.gallery || []).filter((image) => image.image_path?.trim()),
+    ...(details.gallery || []).filter(
+      (image) => image.image_path?.trim() && image.image_path !== mainPath,
+    ),
   ];
   const [section, setSection] = useState("overview");
   useEffect(() => {

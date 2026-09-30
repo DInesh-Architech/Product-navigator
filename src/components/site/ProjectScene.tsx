@@ -3,42 +3,28 @@ import * as Dialog from "@radix-ui/react-dialog";
 import {
   type SelectedWork,
   getEvidenceFallbackPath,
+  getProjectEvidencePath,
   getProjectPresentation,
   mergeCaseStudy,
   useMediaUrl,
 } from "@/lib/portfolio";
 
-const MODULE_CROPS = [
-  { name: "HRMS", box: "6 10 280 204" },
-  { name: "CRM", box: "306 10 280 204" },
-  { name: "Timesheet", box: "606 10 280 204" },
-  { name: "Payroll", box: "906 10 280 204" },
-  { name: "Talent 360", box: "6 234 280 204" },
-];
-
-/** Crops the supplied artifact in the browser. No replacement UI is generated. */
-function SourceCrop({ url, box, label }: { url: string; box: string; label: string }) {
-  return (
-    <svg viewBox={box} role="img" aria-label={label}>
-      <image href={url} width="1205" height="445" />
-    </svg>
-  );
-}
-
 export function ProjectScene({ item, compact = false }: { item: SelectedWork; compact?: boolean }) {
   const [behind, setBehind] = useState(false);
   const details = mergeCaseStudy(item.slug, item.case_study);
   const style = getProjectPresentation(item);
-  const path = details.hero_image_path || item.image_path || getEvidenceFallbackPath(item.slug);
+  const path = getProjectEvidencePath(item, true);
   const url = useMediaUrl(path);
   const fallback = useMediaUrl(getEvidenceFallbackPath(item.slug));
   const image = url || fallback;
-  const modules = style === "workspace" && path?.endsWith("enterprise-operations.webp");
+  const enterpriseMap = path?.endsWith("enterprise-system.svg");
   const workflowCrop = path?.endsWith("construction-progress-billing.svg")
     ? { desktop: "55 285 1340 595", mobile: "55 290 1340 345" }
     : path?.endsWith("provider-current-state.svg")
       ? { desktop: "55 275 1350 585", mobile: "55 275 1350 220" }
-      : null;
+      : enterpriseMap
+        ? { desktop: "48 250 1344 585", mobile: "48 250 1344 585" }
+        : null;
   const steps = details.product_workflow?.length ? details.product_workflow : item.workflow;
   const caption = details.evidence_caption || item.evidence_type || "Project artifact";
   const id = useId();
@@ -50,9 +36,9 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
       <div className="scene-toolbar">
         <span className="folio-label">
           {behind
-            ? "The work beneath the interface"
-            : modules
-              ? "Module interfaces"
+            ? "Product & delivery workflow"
+            : enterpriseMap
+              ? "System & delivery map"
               : item.evidence_type || "Product artifact"}
         </span>
         {steps?.length ? (
@@ -62,7 +48,7 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
             aria-controls={id}
             onClick={() => setBehind(!behind)}
           >
-            {behind ? "← Show the artifact" : "Behind the product ↗"}
+            {behind ? "← View product map" : "View workflow →"}
           </button>
         ) : null}
       </div>
@@ -70,9 +56,9 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
         {behind ? (
           <div className="behind-canvas" key="behind">
             <p className="behind-heading">
-              The interface is
+              From decisions
               <br />
-              only the surface.
+              to delivery.
             </p>
             <ol className="behind-steps">
               {steps.map((step, index) => (
@@ -84,40 +70,9 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
             </ol>
             {details.decisions?.[0] ? <p className="behind-note">{details.decisions[0]}</p> : null}
           </div>
-        ) : modules && image ? (
-          <div className="module-sheet" key="modules">
-            <p className="module-scope">Roles / approvals / shared data</p>
-            <div
-              className="module-grid"
-              tabIndex={0}
-              role="region"
-              aria-label="Module screen sequence"
-            >
-              {MODULE_CROPS.map((crop) => (
-                <div className="module-screen" key={crop.name}>
-                  <SourceCrop
-                    url={image}
-                    box={crop.box}
-                    label={`${crop.name} module — crop of the supplied product screen`}
-                  />
-                </div>
-              ))}
-              <div className="module-system-note">
-                <span className="folio-label">Cross-module work</span>
-                <p>
-                  Requirements
-                  <br />
-                  Handoffs
-                  <br />
-                  Validation
-                </p>
-                <span>Across five modules</span>
-              </div>
-            </div>
-          </div>
         ) : image ? (
           <div
-            className={`artifact-canvas ${path?.endsWith(".svg") ? "artifact-canvas--map" : ""}`}
+            className={`artifact-canvas ${path?.endsWith(".svg") ? "artifact-canvas--map" : ""}${enterpriseMap ? " artifact-canvas--enterprise" : ""}`}
             key="artifact"
           >
             <span className="artifact-axis" aria-hidden="true">
@@ -125,7 +80,9 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
                 ? "Scope → sequence → review"
                 : style === "map"
                   ? "Actors → states → handoffs"
-                  : "Product / experience"}
+                  : enterpriseMap
+                    ? "Modules → shared rules → delivery"
+                    : "Product / experience"}
             </span>
             {workflowCrop ? (
               <div
@@ -166,20 +123,12 @@ export function ProjectScene({ item, compact = false }: { item: SelectedWork; co
             <span>Explore the workflow and decisions below.</span>
           </div>
         )}
-        {!behind && (modules || workflowCrop) ? (
-          <span className="mobile-scene-cue">
-            {modules ? "Swipe through the modules →" : "Scroll to follow the workflow →"}
-          </span>
+        {!behind && workflowCrop ? (
+          <span className="mobile-scene-cue">Scroll to explore the map →</span>
         ) : null}
       </div>
       <div className="scene-footer">
-        <span>
-          {behind
-            ? "Product and delivery workflow"
-            : modules
-              ? "Anonymized source screen · individual module crops"
-              : caption}
-        </span>
+        <span>{behind ? "Product and delivery workflow" : caption}</span>
         {image ? <EvidenceViewer url={image} title={item.title} caption={caption} /> : null}
       </div>
     </div>

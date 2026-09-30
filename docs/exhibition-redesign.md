@@ -47,3 +47,11 @@ The Lab uses equal visual areas: real prototype screenshots for Real Wealth and 
 The architecture-to-product paragraph is visible. Supporting project records and the healthcare research note are visible rows, with no mismatched hidden-record counter. Display tracking is relaxed and sage/olive text darkened. Keyboard skip links sit within the top navigation area when focused, and target focusable content sections.
 
 Motion is limited to short project/content fades, image opacity reveals and small link-arrow feedback, with reduced-motion overrides. Libraries.dev was reviewed; no effect package or WebGL dependency was added for static portfolio image loading.
+
+## 30 September — About, evidence and action discoverability
+
+The About section now leads with the existing portrait and visible biography. The heading is shorter, contact actions have explicit button treatments, and the five-step journey is retained at a smaller scale below the story. Intro, transition text, portrait and profile links still use the existing admin records. Custom arrow-separated journey stages remain supported.
+
+The original Enterprise module launcher has been retired from the deployed assets at the owner's request. Its previous version remains recoverable in Git history. A new, explicitly reconstructed SVG shows the documented five modules, shared roles/approvals/data rules, and product delivery sequence. It is a conceptual product map, not a technical architecture or a fabricated application screen. Saved references to the retired filename fall back to the new map; the gallery filters the retired asset and removes duplicate main-image entries. Future admin-uploaded evidence remains supported.
+
+The UI audit found case-study actions below the preview, small controls styled like captions, project changes triggered by incidental hover/focus, hidden mobile projects in a horizontal strip, and arrow-only Lab destinations. The primary case-study action now precedes the exhibit. Workflow and full-size controls use visible outlines and 44 px targets. Project selection is explicit; all mobile project choices are visible. Lab destinations have text labels, the contact closer labels its email action, and the mobile header retains a contact action. Hover feedback is subtle and respects reduced-motion preferences.

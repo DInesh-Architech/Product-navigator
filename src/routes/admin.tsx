@@ -61,7 +61,13 @@ const FIELD_SPECS: Record<
   ],
   about: [
     { key: "intro", label: "About introduction", kind: "area", wide: true },
-    { key: "transition_copy", label: "Journey / transition", kind: "area", wide: true },
+    {
+      key: "transition_copy",
+      label: "Journey / transition",
+      kind: "area",
+      wide: true,
+      help: "Shown in full beside your portrait. To replace the journey stages instead, separate stage names with →.",
+    },
     {
       key: "portrait_path",
       label: "Portrait image path",
@@ -1091,7 +1097,7 @@ function CaseStudyFields({
           onChange={(event) => update("presentation", event.target.value)}
         >
           <option value="">Automatic, based on the project</option>
-          <option value="workspace">Workspace / interface fragments</option>
+          <option value="workspace">Enterprise / system map</option>
           <option value="flow">Construction / workflow</option>
           <option value="map">Healthcare / system map</option>
           <option value="image">Full image</option>
@@ -1113,7 +1119,9 @@ function CaseStudyFields({
         <h3>Additional evidence gallery</h3>
         <p className="admin-field-help">
           The main evidence image appears first. Add public URLs or uploaded media paths below;
-          captions should explain what each artifact proves and whether it is reconstructed.
+          captions should explain what each artifact proves and whether it is reconstructed. The
+          retired Enterprise source screen is replaced by /evidence/enterprise-system.svg; new
+          evidence uploads remain editable here.
         </p>
         {gallery.map((asset, index) => (
           <div className="admin-gallery-item" key={index}>
