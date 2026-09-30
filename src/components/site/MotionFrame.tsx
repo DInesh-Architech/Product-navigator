@@ -69,8 +69,19 @@ export function MotionFrame({
       css={`
         [data-beam="{id}"] {
           overflow: visible;
+          --beam-stroke-opacity: 7;
           --beam-inner-opacity: 0.2;
           --beam-bloom-opacity: 0.6;
+        }
+        [data-beam="{id}"]::after {
+          padding: 2px;
+          background: conic-gradient(
+            from var(--beam-angle-{id}),
+            transparent 0% 38%,
+            #315c42 56%,
+            #d5ed67 70%,
+            transparent 84%
+          );
         }
         [data-beam="{id}"][data-motion="paused"],
         [data-beam="{id}"][data-motion="paused"]::before,
