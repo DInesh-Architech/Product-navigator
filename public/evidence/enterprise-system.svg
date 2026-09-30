@@ -35,7 +35,7 @@
       <text x="64" y="783">Role &amp; workflow<tspan x="64" dy="29">mapping</tspan></text>
       <text x="330" y="783">Requirements</text>
       <text x="596" y="783">Acceptance<tspan x="596" dy="29">criteria</tspan></text>
-      <text x="862" y="783">Design &amp; engineering<tspan x="862" dy="29">handoffs</tspan></text>
+      <text x="862" y="783">Design &amp;<tspan x="862" dy="29">engineering handoffs</tspan></text>
       <text x="1128" y="783">QA &amp; release<tspan x="1128" dy="29">readiness</tspan></text>
     </g>
     <g font-size="23" fill="#536435"><text x="285" y="788">→</text><text x="551" y="788">→</text><text x="817" y="788">→</text><text x="1083" y="788">→</text></g>
